@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍅 番茄旅行AI - 智能旅游定制助手</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#FF6B35;--p2:#E55A2B;--a:#00C9A7;--s:#1A3A4A;--bg:#F8F9FA;--t:#1A1A2E;--g:#6B7280}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(135deg,#FFF9F5,#F0FFF9);min-height:100vh}
+
+nav{position:fixed;top:0;left:0;right:0;padding:16px 40px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,107,53,0.1)}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--p);text-decoration:none}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--p),var(--a));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{text-decoration:none;color:var(--t);font-weight:500;transition:color 0.3s}
+.nav-links a:hover{color:var(--p)}
+
+main{padding-top:100px;max-width:1200px;margin:0 auto;padding-left:40px;padding-right:40px}
+
+.hero{text-align:center;padding:60px 0}
+.hero h1{font-size:48px;font-weight:700;margin-bottom:20px;background:linear-gradient(135deg,var(--t),var(--p));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:18px;color:var(--g);margin-bottom:40px}
+.hero-btns{display:flex;gap:16px;justify-content:center}
+.btn{padding:16px 32px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(255,107,53,0.3)}
+.btn-secondary{background:#fff;color:var(--p);border:2px solid var(--p)}
+.btn-secondary:hover{background:#FFF5F0}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin:60px 0}
+.feature{background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,0.06);transition:all 0.2s}
+.feature:hover{transform:translateY(-5px);box-shadow:0 10px 40px rgba(0,0,0,0.1)}
+.feature-icon{font-size:40px;margin-bottom:16px}
+.feature-title{font-size:18px;font-weight:700;margin-bottom:10px;color:var(--t)}
+.feature-desc{font-size:14px;color:var(--g);line-height:1.6}
+
+footer{text-align:center;padding:40px;color:#999;font-size:14px}
+</style>
+</head>
+<body>
+<nav>
+    <a href="index.html" class="logo">
+        <div class="logo-icon">🍅</div>
+        <span>番茄旅行AI</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="hotel-price.html">🏨 酒店比价</a></li>
+        <li><a href="ai-assistant.html">🤖 AI助手</a></li>
+    </ul>
+</nav>
+
+<main>
+    <div class="hero">
+        <h1>🍅 番茄旅行AI</h1>
+        <p>智能酒店比价助手 · 一键查询途牛+飞猪实时价格<br>自动同步飞书表格 · 让旅游定制更简单</p>
+        <div class="hero-btns">
+            <a href="hotel-price.html" class="btn btn-primary">🏨 开始比价</a>
+            <a href="ai-assistant.html" class="btn btn-secondary">🤖 AI助手</a>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🏨</div>
+            <div class="feature-title">实时酒店比价</div>
+            <div class="feature-desc">途牛 + 飞猪双平台实时价格对比，支持城市查询、酒店名搜索、日期查询</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🤖</div>
+            <div class="feature-title">AI智能助手</div>
+            <div class="feature-desc">自然语言查询，自动调用OTA技能，输入"查三亚天域酒店价格"即可</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">飞书表格同步</div>
+            <div class="feature-desc">自动逐日查询飞猪、途牛价格并写入飞书多维表格，用于报价和趋势分析</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">快捷工具栏</div>
+            <div class="feature-desc">酒店比价、机票查询、门票查询、火车票、价格趋势，一键直达</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💰</div>
+            <div class="feature-title">价格颜色分级</div>
+            <div class="feature-desc">🟢经济(≤¥500) 🟠舒适(¥500-1500) 🔴高档(¥1500-3000) 🟣豪华(>¥3000)</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📈</div>
+            <div class="feature-title">价格趋势分析</div>
+            <div class="feature-desc">查看7天价格走势，帮助选择最佳入住时间，节省预算</div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>🍅 番茄旅行AI · 让旅游定制更智能</p>
+    <p style="margin-top:8px">Powered by 途牛开放平台 + 飞猪CLI + 飞书多维表格</p>
+</footer>
+</body>
+</html>

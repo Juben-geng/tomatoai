@@ -678,32 +678,6 @@
                 padding: 40px 24px;
             }
         }
-
-        /* 浮动返回按钮 */
-        .back-btn {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-            z-index: 1000;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .back-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(255, 107, 53, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -716,14 +690,14 @@
         </div>
         <ul class="nav-links">
             <li><a href="#features">功能介绍</a></li>
-            <li><a href="hotel-price-comparison.html">🏨 酒店比价</a></li>
-            <li><a href="ai-assistant-ota.html">🤖 AI助手</a></li>
-            <li><a href="index-full.html">🏢 供应商库</a></li>
+            <li><a href="hotel-price-comparison.html" style="color:var(--primary);font-weight:600">🏨 酒店比价</a></li>
+            <li><a href="index-full.html">🤖 AI助手</a></li>
+            <li><a href="analytics.html">📊 数据分析</a></li>
             <li><a href="#contact">联系我们</a></li>
         </ul>
-        <div style="display:flex;gap:12px;align-items:center">
-            <a href="hotel-price-comparison.html" style="padding:8px 16px;background:linear-gradient(135deg,#FF6B35,#E67E00);color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600">🏨 酒店比价</a>
-            <a href="user-login.html" class="btn btn-secondary" style="padding:10px 20px;font-size:14px">👤 登录</a>
+        <div style="display:flex;gap:12px">
+            <a href="user-login.html" class="btn btn-secondary" style="padding:10px 20px;font-size:14px">👤 用户登录</a>
+            <a href="supplier-login.html" class="btn btn-secondary" style="padding:10px 20px;font-size:14px">🏢 供应商登录</a>
         </div>
     </nav>
 
@@ -765,13 +739,6 @@
                     <div class="demo-input-text">
                         已为您匹配 <span class="highlight">3家</span> 普吉岛优质地接社，生成行程方案，预估价格 <span class="highlight">¥3900/人</span>
                     </div>
-                </div>
-                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,107,53,0.1)">
-                    <a href="hotel-price-comparison.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:linear-gradient(135deg,#FF6B35,#E67E00);color:#fff;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px">
-                        <span>🏨</span>
-                        <span>实时酒店比价 - 途牛·飞猪双平台</span>
-                        <span style="margin-left:auto">→</span>
-                    </a>
                 </div>
             </div>
         </section>
@@ -836,26 +803,6 @@
                         服务过的客户都在这里。
                     </p>
                 </div>
-            </div>
-        </section>
-
-        <!-- 酒店比价嵌入区域 -->
-        <section class="demo-section" id="hotel-price" style="margin-top:40px">
-            <div class="section-header">
-                <h2 class="section-title">🏨 实时酒店比价</h2>
-                <p class="section-desc">途牛+飞猪双平台实时价格对比，无需跳转，直接查询</p>
-            </div>
-            
-            <div style="background:white;border-radius:24px;box-shadow:0 10px 40px rgba(255,107,53,0.1);overflow:hidden;border:2px solid rgba(255,107,53,0.1)">
-                <!-- 嵌入完整的酒店比价页面 -->
-                <iframe src="hotel-price-comparison.html" width="100%" height="750" frameborder="0" style="border:none;display:block" id="hotelPriceFrame"></iframe>
-            </div>
-            
-            <!-- 如果iframe加载失败，显示备用链接 -->
-            <div id="iframeFallback" style="display:none;text-align:center;padding:40px;background:#f8f9fa;border-radius:16px;margin-top:20px">
-                <div style="font-size:40px;margin-bottom:16px">🏨</div>
-                <div style="color:#666;margin-bottom:20px">iframe加载受限，请点击下方按钮打开完整页面</div>
-                <a href="hotel-price-comparison.html" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#FF6B35,#E67E00);color:#fff;border-radius:10px;text-decoration:none;font-weight:600">打开酒店比价页面</a>
             </div>
         </section>
 
@@ -952,8 +899,12 @@
         <section class="cta" id="contact">
             <div class="cta-card">
                 <h2 class="cta-title">让AI成为你的最强搭档</h2>
-                <p class="cta-desc">首批用户享限时优惠，现在加入立享8折</p>
-                <a href="index-full.html" class="btn btn-primary">🚀 立即免费试用</a>
+                <p class="cta-desc">实时酒店比价 · 智能供应商匹配 · 一键生成方案</p>
+                <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+                    <a href="hotel-price-comparison.html" class="btn btn-primary">🏨 酒店比价</a>
+                    <a href="index-full.html" class="btn btn-primary" style="background:var(--accent)">🤖 AI助手</a>
+                    <a href="user-login.html" class="btn btn-secondary">👤 登录</a>
+                </div>
             </div>
         </section>
     </main>
@@ -962,20 +913,7 @@
         <p>© 2026 番茄旅行AI · 旅游定制师专属助手 🦞🍅</p>
     </footer>
 
-    <!-- 浮动返回按钮 -->
-    <button class="back-btn" onclick="goBack()" title="返回上一页">←</button>
-
     <script>
-        // 返回按钮功能
-        function goBack() {
-            if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
-                history.back();
-            } else {
-                // 如果没有来源，直接返回首页
-                window.location.href = 'index.html';
-            }
-        }
-
         // 简单的交互效果
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

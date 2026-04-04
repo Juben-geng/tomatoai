@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Creator - 番茄旅行AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#FF6B35;--a:#00C9A7;--bg:#F8F9FA;--t:#1A1A2E;--g:#6B7280;--b:rgba(26,58,74,0.1)}
+body{font-family:"Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t)}
+.h{background:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--p);cursor:pointer}
+.nav{display:flex;gap:8px}
+.nav-btn{padding:8px 16px;border:none;background:0;border-radius:8px;cursor:pointer;font-weight:500;font-size:14px;color:var(--g)}
+.nav-btn.active{background:var(--p);color:#fff}
+.main{padding:24px;max-width:1200px;margin:0 auto}
+.ph{font-size:24px;font-weight:700;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+.card{background:#fff;padding:20px;border-radius:12px;border:1px solid var(--b);cursor:pointer;transition:all 0.2s}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.08);transform:translateY(-2px)}
+.card-icon{font-size:32px;margin-bottom:12px}
+.card-title{font-weight:600;font-size:16px;margin-bottom:8px}
+.card-desc{font-size:13px;color:var(--g);line-height:1.5}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.tag{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--bg);color:var(--g)}
+.form-c{background:#fff;padding:24px;border-radius:12px;border:1px solid var(--b);margin-bottom:24px}
+.form-h{font-size:18px;font-weight:600;margin-bottom:20px}
+.form-g{margin-bottom:16px}
+.form-l{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--t)}
+.form-i{width:100%;padding:10px 12px;border:1px solid var(--b);border-radius:8px;font-size:13px}
+.form-i:focus{outline:none;border-color:var(--p)}
+.form-ta{min-height:120px;resize:vertical;font-family:inherit}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:var(--p);color:#fff;transition:all 0.2s}
+.btn:hover{background:#E55A2B}
+.btn-s{background:var(--a)}
+.btn-s:hover{background:#00B894}
+.btn-o{background:#fff;border:1px solid var(--b);color:var(--t)}
+.btn-o:hover{background:var(--bg)}
+.btn-g{display:flex;gap:8px;margin-top:16px}
+.preview{background:#fff;padding:24px;border-radius:12px;border:1px solid var(--b)}
+.preview-h{font-size:16px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--b)}
+.preview-c{font-size:13px;line-height:1.6;white-space:pre-wrap;font-family:monospace;background:var(--bg);padding:16px;border-radius:8px}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-c{background:#fff;border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto}
+.modal-h{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.modal-b{padding:20px}
+.close-btn{width:28px;height:28px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:16px}
+.close-btn:hover{background:var(--d);color:#fff}
+.skill-list{margin-top:16px}
+.skill-item{padding:12px;border:1px solid var(--b);border-radius:8px;margin-bottom:8px;cursor:pointer}
+.skill-item:hover{background:var(--bg)}
+.skill-name{font-weight:600;margin-bottom:4px}
+.skill-desc{font-size:12px;color:var(--g)}
+</style>
+</head>
+<body>
+<header class="h">
+<div class="logo" onclick="location.href='index.html'"><span>🍅 番茄旅行AI</span></div>
+<nav class="nav">
+<button class="nav-btn" onclick="location.href='index-full.html'">供应商</button>
+<button class="nav-btn" onclick="location.href='index-full.html'">AI助手</button>
+<button class="nav-btn" onclick="location.href='analytics.html'">数据分析</button>
+<button class="nav-btn" onclick="location.href='admin-panel.html'">管理后台</button>
+<button class="nav-btn active" onclick="location.href='skill-creator.html'">Skill Creator</button>
+</nav>
+</header>
+
+<main class="main">
+<h1 class="ph">🎯 Skill Creator</h1>
+
+<!-- 快速入口 -->
+<div class="cards">
+<div class="card" onclick="showCreateForm()">
+<div class="card-icon">✨</div>
+<div class="card-title">创建新 Skill</div>
+<div class="card-desc">为特定功能或领域创建可复用的技能包，支持自定义工作流和输出格式。</div>
+<div class="card-tags">
+<span class="tag">自定义</span>
+<span class="tag">可复用</span>
+<span class="tag">模块化</span>
+</div>
+</div>
+
+<div class="card" onclick="showGuide()">
+<div class="card-icon">📚</div>
+<div class="card-title">学习创建 Skill</div>
+<div class="card-desc">了解 Skill 的创建流程、最佳实践和模板结构。</div>
+<div class="card-tags">
+<span class="tag">教程</span>
+<span class="tag">最佳实践</span>
+</div>
+</div>
+
+<div class="card" onclick="showMySkills()">
+<div class="card-icon">📦</div>
+<div class="card-title">我的 Skills</div>
+<div class="card-desc">查看和管理已创建的技能包。</div>
+<div class="card-tags">
+<span class="tag">管理</span>
+<span class="tag">编辑</span>
+</div>
+</div>
+
+<div class="card" onclick="showTemplates()">
+<div class="card-icon">📋</div>
+<div class="card-title">Skill 模板库</div>
+<div class="card-desc">使用预置模板快速创建常用技能。</div>
+<div class="card-tags">
+<span class="tag">模板</span>
+<span class="tag">快速创建</span>
+</div>
+</div>
+</div>
+
+<!-- 创建表单 -->
+<div class="form-c" id="createForm" style="display:none">
+<div class="form-h">创建新 Skill</div>
+
+<div class="form-g">
+<label class="form-l">Skill 名称</label>
+<input type="text" class="form-i" id="skillName" placeholder="例如：hotel-flight-search">
+</div>
+
+<div class="form-g">
+<label class="form-l">描述（触发词）</label>
+<input type="text" class="form-i" id="skillDesc" placeholder="酒店机票查询助手。触发词：查酒店、查机票、酒店价格">
+</div>
+
+<div class="form-g">
+<label class="form-l">功能说明</label>
+<textarea class="form-i form-ta" id="skillFeature" placeholder="描述 Skill 的主要功能和用途..."></textarea>
+</div>
+
+<div class="form-g">
+<label class="form-l">输出格式</label>
+<textarea class="form-i form-ta" id="skillOutput" placeholder="定义输出格式，例如：文本格式、表格格式、对比格式..."></textarea>
+</div>
+
+<div class="form-g">
+<label class="form-l">示例</label>
+<textarea class="form-i form-ta" id="skillExample" placeholder="提供使用示例，帮助 AI 更好理解..."></textarea>
+</div>
+
+<div class="btn-g">
+<button class="btn" onclick="generateSkill()">生成 Skill</button>
+<button class="btn btn-s" onclick="previewSkill()">预览</button>
+<button class="btn btn-o" onclick="hideCreateForm()">取消</button>
+</div>
+</div>
+
+<!-- 预览区域 -->
+<div class="preview" id="previewArea" style="display:none">
+<div class="preview-h">📝 SKILL.md 预览</div>
+<div class="preview-c" id="previewContent"></div>
+</div>
+
+<!-- 我的 Skills 列表 -->
+<div class="form-c" id="mySkills" style="display:none">
+<div class="form-h">我的 Skills</div>
+<div class="skill-list" id="skillList"></div>
+</div>
+
+</main>
+
+<!-- 详情模态框 -->
+<div class="modal" id="detailModal">
+<div class="modal-c">
+<div class="modal-h">
+<span id="modalTitle">Skill 详情</span>
+<button class="close-btn" onclick="closeModal()">×</button>
+</div>
+<div class="modal-b" id="modalBody"></div>
+</div>
+</div>
+
+<script>
+var mySkillsData=[
+  {name:"hotel-flight-search",desc:"酒店机票查询助手",tags:["查酒店","查机票","OTA查询"],created:"2026-03-30"},
+  {name:"weather-advisor",desc:"天气顾问",tags:["天气","穿衣建议"],created:"2026-03-20"},
+  {name:"travel-planner",desc:"旅行规划助手",tags:["旅行","攻略","行程"],created:"2026-03-15"}
+];
+
+function showCreateForm(){document.getElementById("createForm").style.display="block";document.getElementById("previewArea").style.display="none";document.getElementById("mySkills").style.display="none"}
+function hideCreateForm(){document.getElementById("createForm").style.display="none"}
+function showGuide(){document.getElementById("modalTitle").textContent="Skill 创建指南";document.getElementById("modalBody").innerHTML="<b>创建流程：</b><br><br>1️⃣ 确定需求 — 明确 Skill 解决什么问题<br>2️⃣ 定义触发词 — 描述何时激活 Skill<br>3️⃣ 设计输出格式 — 文本/表格/对比<br>4️⃣ 编写示例 — 帮助 AI 理解<br>5️⃣ 测试迭代 — 根据使用优化<br><br><b>Skill 结构：</b><br><br><code>skill-name/<br>├── SKILL.md（必需）<br>│   ├── YAML 前置信息<br>│   └── Markdown 指令<br>└── scripts/（可选）</code>";document.getElementById("detailModal").classList.add("active")}
+function showMySkills(){document.getElementById("createForm").style.display="none";document.getElementById("previewArea").style.display="none";document.getElementById("mySkills").style.display="block";renderSkillList()}
+function showTemplates(){document.getElementById("modalTitle").textContent="Skill 模板库";document.getElementById("modalBody").innerHTML="<b>可用模板：</b><br><br>• 酒店查询模板<br>• 机票查询模板<br>• 行程规划模板<br>• 翻译助手模板<br>• 数据分析模板<br><br><button class=\"btn\" onclick=\"applyTemplate('hotel')\">使用酒店查询模板</button>";document.getElementById("detailModal").classList.add("active")}
+
+function renderSkillList(){document.getElementById("skillList").innerHTML=mySkillsData.map(function(s){return"<div class=\"skill-item\" onclick=\"viewSkill('"+s.name+"')\"><div class=\"skill-name\">"+s.name+"</div><div class=\"skill-desc\">"+s.desc+" | 创建于 "+s.created+"</div></div>"}).join("")}
+
+function viewSkill(name){var s=mySkillsData.find(function(x){return x.name===name});if(s){document.getElementById("modalTitle").textContent=s.name;document.getElementById("modalBody").innerHTML="<b>描述：</b>"+s.desc+"<br><br><b>触发词：</b>"+s.tags.join("、")+"<br><br><b>创建时间：</b>"+s.created+"<br><br><button class=\"btn\" onclick=\"editSkill('"+s.name+"')\">编辑</button> <button class=\"btn btn-o\" onclick=\"deleteSkill('"+s.name+"')\">删除</button>";document.getElementById("detailModal").classList.add("active")}}
+
+function editSkill(name){alert("编辑 Skill: "+name)}
+function deleteSkill(name){if(confirm("确定删除 Skill: "+name+"?")){mySkillsData=mySkillsData.filter(function(x){return x.name!==name});renderSkillList();closeModal()}}
+
+function generateSkill(){var name=document.getElementById("skillName").value.trim();var desc=document.getElementById("skillDesc").value.trim();var feature=document.getElementById("skillFeature").value.trim();var output=document.getElementById("skillOutput").value.trim();var example=document.getElementById("skillExample").value.trim();if(!name||!desc){alert("请填写 Skill 名称和描述");return}var skill="---\nname: "+name+"\ndescription: "+desc+"\n---\n\n# "+name+"\n\n"+feature+"\n\n## 输出格式\n\n"+output+"\n\n## 示例\n\n"+example+"\n";mySkillsData.push({name:name,desc:desc,tags:[name],created:new Date().toISOString().split("T")[0]});document.getElementById("previewContent").textContent=skill;document.getElementById("previewArea").style.display="block";alert("Skill 创建成功！")}
+
+function previewSkill(){var name=document.getElementById("skillName").value.trim()||"skill-name";var desc=document.getElementById("skillDesc").value.trim()||"描述";var feature=document.getElementById("skillFeature").value.trim()||"功能说明";var output=document.getElementById("skillOutput").value.trim()||"输出格式";var example=document.getElementById("skillExample").value.trim()||"示例";var skill="---\nname: "+name+"\ndescription: "+desc+"\n---\n\n# "+name+"\n\n"+feature+"\n\n## 输出格式\n\n"+output+"\n\n## 示例\n\n"+example+"\n";document.getElementById("previewContent").textContent=skill;document.getElementById("previewArea").style.display="block"}
+
+function closeModal(){document.getElementById("detailModal").classList.remove("active")}
+function applyTemplate(type){if(type==="hotel"){document.getElementById("skillName").value="hotel-search";document.getElementById("skillDesc").value="酒店查询助手。触发词：查酒店、酒店价格、OTA查询";document.getElementById("skillFeature").value="快速准确查询酒店信息，支持多平台价格对比。";document.getElementById("skillOutput").value="文本格式：酒店名称、地址、日期、房型、价格\n表格格式：项目对比表\n对比格式：多平台价格+真实预订链接";document.getElementById("skillExample").value="用户输入：查询韩国一山K酒店，4月12-18日双床价格\n输出：酒店名称：一山K酒店\n价格：435 CNY/间夜"}closeModal();showCreateForm()}
+</script>
+</body>
+</html>

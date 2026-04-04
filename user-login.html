@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户登录 - 番茄旅行AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:linear-gradient(135deg,#FFF9F5,#F0FFF9,#F0F5FF);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#1A1A2E}
+.container{width:100%;max-width:400px;padding:20px}
+.card{background:white;border-radius:16px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#FF6B35,#00C9A7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo-text{font-size:20px;font-weight:700;color:#FF6B35}
+.back-link{display:block;text-align:center;margin-top:16px;font-size:13px;color:#FF6B35;text-decoration:none}
+.back-link:hover{text-decoration:underline}
+.tabs{display:flex;margin-bottom:24px;border-bottom:2px solid rgba(26,58,74,0.1)}
+.tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;color:#6B7280;border-bottom:3px solid transparent;transition:all 0.3s}
+.tab.active{color:#FF6B35;border-bottom-color:#FF6B35}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:14px;font-weight:500;margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;border:1px solid rgba(26,58,74,0.1);border-radius:8px;font-size:14px;transition:border-color 0.3s}
+.form-input:focus{outline:none;border-color:#FF6B35}
+.form-input.error{border-color:#e74c3c}
+.error-msg{color:#e74c3c;font-size:12px;margin-top:4px}
+.btn{width:100%;padding:12px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all 0.3s;margin-top:8px}
+.btn-primary{background:#FF6B35;color:white}
+.btn-primary:hover{background:#E55A2B;transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,107,53,0.3)}
+.quick-login{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.quick-btn{padding:10px;border-radius:8px;border:1px solid rgba(26,58,74,0.1);background:white;cursor:pointer;font-size:13px;text-align:center;transition:all 0.2s}
+.quick-btn:hover{border-color:#FF6B35;background:#FFF9F5}
+.quick-btn-title{font-weight:600;color:#1A1A2E}
+.quick-btn-desc{font-size:11px;color:#6B7280;margin-top:2px}
+.success-box{text-align:center;padding:20px}
+.success-icon{font-size:48px;margin-bottom:12px}
+.success-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.success-desc{color:#6B7280;margin-bottom:16px}
+.user-info-box{background:#FFF9F5;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left}
+.info-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.info-row:last-child{margin-bottom:0}
+.info-label{color:#6B7280}
+.info-value{font-weight:600;color:#1A1A2E}
+@media(max-width:480px){.card{padding:24px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="logo">
+<div class="logo-icon">🍅</div>
+<div class="logo-text">番茄旅行AI</div>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('login')">登录</div>
+<div class="tab" onclick="switchTab('register')">注册</div>
+</div>
+
+<div id="loginPage" class="tab-content active">
+<form onsubmit="handleLogin(event)">
+<div class="form-group">
+<label class="form-label">用户名</label>
+<input type="text" class="form-input" id="loginUsername" placeholder="输入用户名" required>
+<div class="error-msg" id="loginUsernameError"></div>
+</div>
+<div class="form-group">
+<label class="form-label">密码</label>
+<input type="password" class="form-input" id="loginPassword" placeholder="输入密码" required>
+<div class="error-msg" id="loginPasswordError"></div>
+</div>
+<button type="submit" class="btn btn-primary">登录</button>
+</form>
+<div class="quick-login">
+<button class="quick-btn" onclick="quickLogin('yanshi01')">
+<div class="quick-btn-title">演示账号</div>
+<div class="quick-btn-desc">yanshi01 / 123456</div>
+</button>
+<button class="quick-btn" onclick="quickLogin('ceshi01')">
+<div class="quick-btn-title">测试账号</div>
+<div class="quick-btn-desc">ceshi01 / 123456</div>
+</button>
+</div>
+<a href="index.html" class="back-link">← 返回首页</a>
+</div>
+
+<div id="registerPage" class="tab-content">
+<form onsubmit="handleRegister(event)">
+<div class="form-group">
+<label class="form-label">用户名</label>
+<input type="text" class="form-input" id="regUsername" placeholder="3-20个字符" required>
+</div>
+<div class="form-group">
+<label class="form-label">邮箱</label>
+<input type="email" class="form-input" id="regEmail" placeholder="输入邮箱" required>
+</div>
+<div class="form-group">
+<label class="form-label">密码</label>
+<input type="password" class="form-input" id="regPassword" placeholder="至少6位" required>
+</div>
+<div class="form-group">
+<label class="form-label">确认密码</label>
+<input type="password" class="form-input" id="regPassword2" placeholder="再次输入密码" required>
+<div class="error-msg" id="regPasswordError"></div>
+</div>
+<button type="submit" class="btn btn-primary">注册</button>
+</form>
+<a href="index.html" class="back-link">← 返回首页</a>
+</div>
+
+<div id="successPage" class="tab-content">
+<div class="success-box">
+<div class="success-icon">✅</div>
+<div class="success-title">登录成功！</div>
+<div class="success-desc">正在跳转...</div>
+<div class="user-info-box">
+<div class="info-row"><span class="info-label">用户名</span><span class="info-value" id="showUsername">-</span></div>
+<div class="info-row"><span class="info-label">用户ID</span><span class="info-value" id="showUserId">-</span></div>
+</div>
+<button class="btn btn-primary" onclick="goToApp()">进入应用</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+function initUsers(){
+  var users=JSON.parse(localStorage.getItem('users')||'[]');
+  if(users.length===0){
+    users=[
+      {user_id:'u_yanshi',username:'yanshi01',email:'yanshi@qq.com',password:'123456'},
+      {user_id:'u_ceshi',username:'ceshi01',email:'ceshi@qq.com',password:'123456'}
+    ];
+    localStorage.setItem('users',JSON.stringify(users));
+  }
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active')});
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active')});
+  document.getElementById(tab+'Page').classList.add('active');
+  document.querySelector('[onclick="switchTab(\''+tab+'\')"]').classList.add('active');
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  clearErrors();
+  var username=document.getElementById('loginUsername').value.trim();
+  var password=document.getElementById('loginPassword').value;
+  if(!username||!password){alert('请填写用户名和密码');return;}
+  var users=JSON.parse(localStorage.getItem('users')||'[]');
+  var user=users.find(function(u){return u.username===username});
+  if(!user){document.getElementById('loginUsernameError').textContent='用户不存在';document.getElementById('loginUsername').classList.add('error');return;}
+  if(user.password!==password){document.getElementById('loginPasswordError').textContent='密码错误';document.getElementById('loginPassword').classList.add('error');return;}
+  loginSuccess(user);
+}
+
+function handleRegister(e){
+  e.preventDefault();
+  clearErrors();
+  var username=document.getElementById('regUsername').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var password=document.getElementById('regPassword').value;
+  var password2=document.getElementById('regPassword2').value;
+  if(username.length<3||username.length>20){alert('用户名需要3-20个字符');return;}
+  if(!email.includes('@')){alert('请输入有效邮箱');return;}
+  if(password.length<6){alert('密码至少6位');return;}
+  if(password!==password2){document.getElementById('regPasswordError').textContent='两次密码不一致';return;}
+  var users=JSON.parse(localStorage.getItem('users')||'[]');
+  if(users.find(function(u){return u.username===username})){alert('用户名已存在');return;}
+  var newUser={user_id:'u_'+Date.now(),username:username,email:email,password:password};
+  users.push(newUser);
+  localStorage.setItem('users',JSON.stringify(users));
+  loginSuccess(newUser);
+}
+
+function quickLogin(username){
+  var users=JSON.parse(localStorage.getItem('users')||'[]');
+  var user=users.find(function(u){return u.username===username});
+  if(user){loginSuccess(user);}
+}
+
+function loginSuccess(user){
+  localStorage.setItem('current_user',JSON.stringify({user_id:user.user_id,username:user.username,email:user.email,login_time:Date.now()}));
+  document.getElementById('showUsername').textContent=user.username;
+  document.getElementById('showUserId').textContent=user.user_id;
+  switchTab('success');
+  setTimeout(function(){goToApp();},2000);
+}
+
+function goToApp(){
+  window.location.href='index-full.html';
+}
+
+function clearErrors(){
+  document.querySelectorAll('.error-msg').forEach(function(el){el.textContent=''});
+  document.querySelectorAll('.form-input').forEach(function(el){el.classList.remove('error')});
+}
+
+document.addEventListener('DOMContentLoaded',function(){initUsers();});
+</script>
+</body>
+</html>

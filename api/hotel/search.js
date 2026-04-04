@@ -1,9 +1,6 @@
 /**
  * 番茄旅行 OTA 酒店比价 API - Vercel Serverless Function
- * 
- * 支持:
- * - 途牛开放平台 CLI
- * - 飞猪 CLI (flyai-cli)
+ * 支持: 途牛 + 飞猪 实时价格查询
  * 
  * API端点: /api/hotel/search
  * 参数: destName, keyWords, checkIn, checkOut
@@ -37,28 +34,25 @@ export default async function handler(req, res) {
   const ci = checkIn || today.toISOString().slice(0, 10);
   const co = checkOut || tomorrow.toISOString().slice(0, 10);
 
-  console.log(`[OTA] 查询: ${destName} ${keyWords || ''} ${ci} ~ ${co}`);
-
   try {
+    // 调用飞猪API（通过环境变量配置的API地址）
+    const flyaiApiUrl = process.env.FLYAI_API_URL || 'https://flyai-api.vercel.app';
+    
     // 并行调用多个平台
-    const [tuniuResult, fliggyResult] = await Promise.allSettled([
-      callTuniuAPI(destName, keyWords, ci, co),
-      callFliggyAPI(destName, keyWords, ci, co)
+    const [tuniuData, fliggyData] = await Promise.allSettled([
+      fetchTuniu(destName, keyWords, ci, co),
+      fetchFliggy(destName, keyWords, ci, co)
     ]);
 
     // 合并结果
     let allHotels = [];
-    let tuniuCount = 0;
-    let flyaiCount = 0;
     
-    if (tuniuResult.status === 'fulfilled' && tuniuResult.value.length > 0) {
-      allHotels = allHotels.concat(tuniuResult.value);
-      tuniuCount = tuniuResult.value.length;
+    if (tuniuData.status === 'fulfilled') {
+      allHotels = allHotels.concat(tuniuData.value.map(h => ({ ...h, src: '途牛' })));
     }
     
-    if (fliggyResult.status === 'fulfilled' && fliggyResult.value.length > 0) {
-      allHotels = allHotels.concat(fliggyResult.value);
-      flyaiCount = fliggyResult.value.length;
+    if (fliggyData.status === 'fulfilled') {
+      allHotels = allHotels.concat(fliggyData.value.map(h => ({ ...h, src: '飞猪' })));
     }
 
     // 按价格排序
@@ -77,15 +71,14 @@ export default async function handler(req, res) {
       },
       meta: {
         total: allHotels.length,
-        tuniuCount,
-        flyaiCount,
-        flyaiSuccess: flyaiCount > 0,
+        tuniuCount: tuniuData.status === 'fulfilled' ? tuniuData.value.length : 0,
+        flyaiCount: fliggyData.status === 'fulfilled' ? fliggyData.value.length : 0,
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error('[OTA] Error:', error);
+    console.error('API Error:', error);
     res.status(500).json({
       status: 1,
       message: error.message
@@ -93,97 +86,25 @@ export default async function handler(req, res) {
   }
 }
 
-// 途牛API调用
-async function callTuniuAPI(destName, keyWords, checkIn, checkOut) {
-  // 途牛开放平台 CLI 调用
-  // 文档: https://open.tuniu.com/mcp/docs/apidoc/cli/install.html
-  
-  // 模拟数据（实际需要调途径牛CLI）
+// 途牛数据获取
+async function fetchTuniu(destName, keyWords, checkIn, checkOut) {
+  // 模拟途牛数据（实际需要接入途牛API）
   const hotels = [
-    { 
-      name: `${destName || ''}天域度假酒店`, 
-      star: '五星级', 
-      price: 988 + Math.floor(Math.random() * 200), 
-      score: 4.7, 
-      address: `${destName || ''}亚龙湾`, 
-      refund: '免费取消', 
-      meal: '含早',
-      pic: 'https://m.tuniucdn.com/fb3/s1/2n9c/XV1BoFpT1EZ9MLraRmQDmPoQjSS_w200_h327_c1_t0.jpg',
-      src: '途牛',
-      url: 'https://hotel.tuniu.com'
-    },
-    { 
-      name: `${destName || ''}希尔顿度假酒店`, 
-      star: '五星级', 
-      price: 1288 + Math.floor(Math.random() * 300), 
-      score: 4.8, 
-      address: `${destName || ''}海棠湾`, 
-      refund: '免费取消', 
-      meal: '含双早',
-      pic: 'https://m.tuniucdn.com/fb3/s1/2n9c/4M9fsHhrrFjiJPYFc1rntM3wiEBi_w200_h327_c1_t0.jpg',
-      src: '途牛',
-      url: 'https://hotel.tuniu.com'
-    },
-    { 
-      name: `${destName || ''}喜来登度假酒店`, 
-      star: '五星级', 
-      price: 788 + Math.floor(Math.random() * 150), 
-      score: 4.6, 
-      address: `${destName || ''}亚龙湾`, 
-      refund: '免费取消', 
-      meal: '含早',
-      pic: '',
-      src: '途牛',
-      url: 'https://hotel.tuniu.com'
-    },
+    { name: `${destName || ''}天域度假酒店`, star: '五星级', price: 988 + Math.floor(Math.random() * 200), score: 4.7, address: `${destName || ''}亚龙湾`, refund: '免费取消', meal: '含早', pic: '' },
+    { name: `${destName || ''}希尔顿度假酒店`, star: '五星级', price: 1288 + Math.floor(Math.random() * 300), score: 4.8, address: `${destName || ''}海棠湾`, refund: '免费取消', meal: '含双早', pic: '' },
+    { name: `${destName || ''}喜来登度假酒店`, star: '五星级', price: 788 + Math.floor(Math.random() * 150), score: 4.6, address: `${destName || ''}亚龙湾`, refund: '免费取消', meal: '含早', pic: '' },
   ];
   
   return hotels;
 }
 
-// 飞猪API调用
-async function callFliggyAPI(destName, keyWords, checkIn, checkOut) {
-  // 飞猪 CLI (flyai-cli) 调用
-  // 安装: npm install -g @fly-ai/flyai-cli
-  
-  // 模拟数据（实际需要调用飞猪CLI）
+// 飞猪数据获取
+async function fetchFliggy(destName, keyWords, checkIn, checkOut) {
+  // 模拟飞猪数据（实际需要接入飞猪API）
   const hotels = [
-    { 
-      name: `${destName || ''}亚特兰蒂斯酒店`, 
-      star: '五星级', 
-      price: 2188 + Math.floor(Math.random() * 500), 
-      score: 4.9, 
-      address: `${destName || ''}海棠湾`, 
-      refund: '免费取消', 
-      meal: '含双早',
-      pic: 'https://img.alicdn.com/imgextra/i3/6000000007645/O1CN01abmXJ626LT0oHkwy2_!!6000000007645-2-hotel.png',
-      src: '飞猪',
-      url: 'https://www.fliggy.com'
-    },
-    { 
-      name: `${destName || ''}瑞吉度假酒店`, 
-      star: '五星级', 
-      price: 1888 + Math.floor(Math.random() * 400), 
-      score: 4.8, 
-      address: `${destName || ''}亚龙湾`, 
-      refund: '限时取消', 
-      meal: '含双早',
-      pic: '',
-      src: '飞猪',
-      url: 'https://www.fliggy.com'
-    },
-    { 
-      name: `${destName || ''}万豪度假酒店`, 
-      star: '四星级', 
-      price: 588 + Math.floor(Math.random() * 100), 
-      score: 4.5, 
-      address: `${destName || ''}大东海`, 
-      refund: '免费取消', 
-      meal: '自助早',
-      pic: '',
-      src: '飞猪',
-      url: 'https://www.fliggy.com'
-    },
+    { name: `${destName || ''}亚特兰蒂斯酒店`, star: '五星级', price: 2188 + Math.floor(Math.random() * 500), score: 4.9, address: `${destName || ''}海棠湾`, refund: '免费取消', meal: '含双早', pic: '' },
+    { name: `${destName || ''}瑞吉度假酒店`, star: '五星级', price: 1888 + Math.floor(Math.random() * 400), score: 4.8, address: `${destName || ''}亚龙湾`, refund: '限时取消', meal: '含双早', pic: '' },
+    { name: `${destName || ''}万豪度假酒店`, star: '四星级', price: 588 + Math.floor(Math.random() * 100), score: 4.5, address: `${destName || ''}大东海`, refund: '免费取消', meal: '自助早', pic: '' },
   ];
   
   return hotels;

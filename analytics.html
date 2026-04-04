@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据分析 - 番茄旅行AI</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#FF6B35;--a:#00C9A7;--bg:#F8F9FA;--t:#1A1A2E;--g:#6B7280;--b:rgba(26,58,74,0.1)}
+body{font-family:"Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t)}
+.h{background:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--p)}
+.nav{display:flex;gap:8px}
+.nav-btn{padding:8px 16px;border:none;background:0;border-radius:8px;cursor:pointer;font-weight:500;font-size:14px;color:var(--g)}
+.nav-btn.active{background:var(--p);color:#fff}
+.main{padding:24px}
+.ph{font-size:24px;font-weight:700;margin-bottom:20px}
+.filters{background:#fff;padding:16px;border-radius:12px;border:1px solid var(--b);margin-bottom:20px;display:flex;gap:12px;align-items:center}
+.filter-g{display:flex;gap:8px;align-items:center}
+.filter-l{font-size:13px;font-weight:600}
+.filter-i{padding:6px 12px;border:1px solid var(--b);border-radius:6px;font-size:12px}
+.btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:12px;background:var(--p);color:#fff}
+.btn:hover{background:#E55A2B}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:#fff;padding:16px;border-radius:12px;border:1px solid var(--b)}
+.stat-v{font-size:28px;font-weight:700;color:var(--p);margin-bottom:4px}
+.stat-l{font-size:12px;color:var(--g)}
+.stat-c{font-size:11px;color:var(--a);margin-top:4px}
+.charts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.chart-c{background:#fff;padding:16px;border-radius:12px;border:1px solid var(--b)}
+.chart-t{font-weight:600;margin-bottom:12px;font-size:14px}
+.chart-w{position:relative;height:300px}
+.table-c{background:#fff;padding:16px;border-radius:12px;border:1px solid var(--b)}
+.table-t{font-weight:600;margin-bottom:12px;font-size:14px}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{background:var(--bg);padding:10px;text-align:left;font-weight:600;border-bottom:1px solid var(--b)}
+.table td{padding:10px;border-bottom:1px solid var(--b)}
+.table tr:hover{background:var(--bg)}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-s{background:#D1FAE5;color:#065F46}
+.badge-w{background:#FEF3C7;color:#92400E}
+.badge-d{background:#FEE2E2;color:#991B1B}
+.export-btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:var(--a);color:#fff}
+.export-btn:hover{background:#00B894}
+</style>
+</head>
+<body>
+<header class="h">
+<div class="logo" onclick="location.href='index.html'"><span>🍅 番茄旅行AI</span></div>
+<nav class="nav">
+<button class="nav-btn" onclick="location.href='index-full.html'">供应商</button>
+<button class="nav-btn" onclick="location.href='index-full.html'">AI助手</button>
+<button class="nav-btn active" onclick="location.href='analytics.html'">数据分析</button>
+<button class="nav-btn" onclick="location.href='admin-panel.html'">管理后台</button>
+</nav>
+</header>
+
+<main class="main">
+<h1 class="ph">📊 数据分析中心</h1>
+
+<!-- 筛选器 -->
+<div class="filters">
+<div class="filter-g">
+<label class="filter-l">日期范围：</label>
+<input type="date" class="filter-i" id="startDate">
+<span>至</span>
+<input type="date" class="filter-i" id="endDate">
+</div>
+<button class="btn" onclick="applyFilters()">查询</button>
+<button class="export-btn" onclick="exportReport()" style="margin-left:auto">📥 导出报告</button>
+</div>
+
+<!-- 统计卡片 -->
+<div class="stats">
+<div class="stat">
+<div class="stat-v" id="totalRevenue">¥0</div>
+<div class="stat-l">总收入</div>
+<div class="stat-c" id="revenueChange">↑ 12.5%</div>
+</div>
+<div class="stat">
+<div class="stat-v" id="totalOrders">0</div>
+<div class="stat-l">订单总数</div>
+<div class="stat-c" id="ordersChange">↑ 8.3%</div>
+</div>
+<div class="stat">
+<div class="stat-v" id="totalUsers">0</div>
+<div class="stat-l">新增用户</div>
+<div class="stat-c" id="usersChange">↑ 15.2%</div>
+</div>
+<div class="stat">
+<div class="stat-v" id="avgOrderValue">¥0</div>
+<div class="stat-l">平均订单额</div>
+<div class="stat-c">↑ 5.1%</div>
+</div>
+</div>
+
+<!-- 图表 -->
+<div class="charts">
+<div class="chart-c">
+<div class="chart-t">📈 收入趋势（近7天）</div>
+<div class="chart-w"><canvas id="revenueChart"></canvas></div>
+</div>
+<div class="chart-c">
+<div class="chart-t">📊 订单分布</div>
+<div class="chart-w"><canvas id="orderChart"></canvas></div>
+</div>
+<div class="chart-c">
+<div class="chart-t">🏆 供应商排名</div>
+<div class="chart-w"><canvas id="supplierChart"></canvas></div>
+</div>
+<div class="chart-c">
+<div class="chart-t">🎯 用户来源</div>
+<div class="chart-w"><canvas id="sourceChart"></canvas></div>
+</div>
+</div>
+
+<!-- 数据表格 -->
+<div class="table-c">
+<div class="table-t">📋 最近订单</div>
+<table class="table">
+<thead>
+<tr>
+<th>订单ID</th>
+<th>用户</th>
+<th>供应商</th>
+<th>目的地</th>
+<th>金额</th>
+<th>状态</th>
+<th>日期</th>
+</tr>
+</thead>
+<tbody id="ordersTable">
+<tr><td colspan="7" style="text-align:center;color:var(--g)">暂无数据</td></tr>
+</tbody>
+</table>
+</div>
+
+</main>
+
+<script>
+var charts={};
+var allOrders=[];
+
+document.addEventListener('DOMContentLoaded',function(){
+  initCharts();
+  loadData();
+  setDefaultDates();
+});
+
+function setDefaultDates(){
+  var end=new Date();
+  var start=new Date(end.getTime()-7*24*60*60*1000);
+  document.getElementById('startDate').value=formatDate(start);
+  document.getElementById('endDate').value=formatDate(end);
+}
+
+function formatDate(d){
+  var m=(d.getMonth()+1).toString().padStart(2,'0');
+  var day=d.getDate().toString().padStart(2,'0');
+  return d.getFullYear()+'-'+m+'-'+day;
+}
+
+function initCharts(){
+  // 收入趋势
+  var revenueCtx=document.getElementById('revenueChart').getContext('2d');
+  charts.revenue=new Chart(revenueCtx,{
+    type:'line',
+    data:{
+      labels:['周一','周二','周三','周四','周五','周六','周日'],
+      datasets:[{
+        label:'收入(元)',
+        data:[2400,1398,9800,3908,4800,3800,4300],
+        borderColor:'#FF6B35',
+        backgroundColor:'rgba(255,107,53,0.1)',
+        tension:0.4,
+        fill:true
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+  });
+
+  // 订单分布
+  var orderCtx=document.getElementById('orderChart').getContext('2d');
+  charts.order=new Chart(orderCtx,{
+    type:'doughnut',
+    data:{
+      labels:['已完成','进行中','待支付','已取消'],
+      datasets:[{
+        data:[45,30,20,5],
+        backgroundColor:['#00C9A7','#FF6B35','#FFB347','#E0E0E0']
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+
+  // 供应商排名
+  var supplierCtx=document.getElementById('supplierChart').getContext('2d');
+  charts.supplier=new Chart(supplierCtx,{
+    type:'bar',
+    data:{
+      labels:['普吉岛地接','泰享旅游','沙巴风情','巴厘岛梦幻','包车老陈'],
+      datasets:[{
+        label:'订单数',
+        data:[45,38,32,28,25],
+        backgroundColor:'#FF6B35'
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}
+  });
+
+  // 用户来源
+  var sourceCtx=document.getElementById('sourceChart').getContext('2d');
+  charts.source=new Chart(sourceCtx,{
+    type:'pie',
+    data:{
+      labels:['直接访问','搜索引擎','社交媒体','推荐'],
+      datasets:[{
+        data:[35,25,25,15],
+        backgroundColor:['#FF6B35','#00C9A7','#FFB347','#667EEA']
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function loadData(){
+  try{
+    allOrders=JSON.parse(localStorage.getItem('orders')||'[]');
+  }catch(e){}
+  
+  updateStats();
+  renderOrdersTable();
+}
+
+function updateStats(){
+  var revenue=allOrders.reduce(function(sum,o){return sum+(o.amount||0)},0);
+  var count=allOrders.length;
+  var avg=count>0?Math.round(revenue/count):0;
+  
+  document.getElementById('totalRevenue').textContent='¥'+revenue;
+  document.getElementById('totalOrders').textContent=count;
+  document.getElementById('totalUsers').textContent=Math.floor(count*0.8);
+  document.getElementById('avgOrderValue').textContent='¥'+avg;
+}
+
+function renderOrdersTable(){
+  var html=allOrders.slice(0,10).map(function(o){
+    var status=o.status||'进行中';
+    var badge='badge-s';
+    if(status==='待支付')badge='badge-w';
+    if(status==='已取消')badge='badge-d';
+    return'<tr><td>'+o.id+'</td><td>'+o.user+'</td><td>'+o.supplier+'</td><td>'+o.dest+'</td><td>¥'+o.amount+'</td><td><span class="badge '+badge+'">'+status+'</span></td><td>'+(o.date||'2026-03-30')+'</td></tr>';
+  }).join('');
+  document.getElementById('ordersTable').innerHTML=html||'<tr><td colspan="7" style="text-align:center;color:var(--g)">暂无数据</td></tr>';
+}
+
+function applyFilters(){
+  var start=document.getElementById('startDate').value;
+  var end=document.getElementById('endDate').value;
+  console.log('筛选日期:',start,'到',end);
+  updateStats();
+  renderOrdersTable();
+}
+
+function exportReport(){
+  var start=document.getElementById('startDate').value;
+  var end=document.getElementById('endDate').value;
+  var revenue=allOrders.reduce(function(sum,o){return sum+(o.amount||0)},0);
+  var count=allOrders.length;
+  
+  var report='番茄旅行AI 数据分析报告\n';
+  report+='生成时间: '+new Date().toLocaleString()+'\n';
+  report+='日期范围: '+start+' 至 '+end+'\n\n';
+  report+='=== 关键指标 ===\n';
+  report+='总收入: ¥'+revenue+'\n';
+  report+='订单总数: '+count+'\n';
+  report+='平均订单额: ¥'+(count>0?Math.round(revenue/count):0)+'\n';
+  report+='新增用户: '+Math.floor(count*0.8)+'\n\n';
+  report+='=== 最近订单 ===\n';
+  allOrders.slice(0,5).forEach(function(o){
+    report+=o.id+' | '+o.user+' | '+o.supplier+' | ¥'+o.amount+' | '+o.status+'\n';
+  });
+  
+  var blob=new Blob([report],{type:'text/plain'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='数据分析报告_'+new Date().getTime()+'.txt';
+  a.click();
+}
+</script>
+</body>
+</html>

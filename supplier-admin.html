@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应商管理后台 - AI旅游助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004E89; --secondary: #FF6B35; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        .sidebar-item { transition: all 0.2s; }
+        .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .template-card { transition: all 0.2s; }
+        .template-card:hover { border-color: var(--primary); }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #004E89; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .knowledge-item { border-left: 3px solid transparent; transition: all 0.2s; }
+        .knowledge-item:hover { border-left-color: var(--primary); background: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white flex flex-col">
+            <div class="p-6 border-b border-blue-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-building text-blue-800 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">供应商后台</h1>
+                        <p class="text-xs text-blue-300">管理系统</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2">
+                <button onclick="showSection('dashboard')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt mr-3"></i>工作台
+                </button>
+                <button onclick="showSection('autoReply')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg" data-section="autoReply">
+                    <i class="fas fa-reply-all mr-3"></i>自动回复
+                </button>
+                <button onclick="showSection('knowledge')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg" data-section="knowledge">
+                    <i class="fas fa-brain mr-3"></i>知识库管理
+                </button>
+                <button onclick="showSection('orders')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg" data-section="orders">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </button>
+                <button onclick="showSection('analytics')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg" data-section="analytics">
+                    <i class="fas fa-chart-line mr-3"></i>数据统计
+                </button>
+                <button onclick="showSection('settings')" class="sidebar-item w-full text-left px-4 py-3 rounded-lg" data-section="settings">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </button>
+            </nav>
+            
+            <div class="p-4 border-t border-blue-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold">供应商账号</p>
+                        <p class="text-xs text-blue-300">vip@travel.com</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>工作台概览
+                </h2>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">今日订单</p>
+                                <p class="text-3xl font-bold text-blue-600">156</p>
+                                <p class="text-green-500 text-sm mt-1"><i class="fas fa-arrow-up mr-1"></i>+12%</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">今日收入</p>
+                                <p class="text-3xl font-bold text-green-600">¥28,560</p>
+                                <p class="text-green-500 text-sm mt-1"><i class="fas fa-arrow-up mr-1"></i>+8%</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-yen-sign text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">待处理咨询</p>
+                                <p class="text-3xl font-bold text-orange-600">23</p>
+                                <p class="text-red-500 text-sm mt-1"><i class="fas fa-clock mr-1"></i>需要处理</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-comments text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">客户满意度</p>
+                                <p class="text-3xl font-bold text-purple-600">96.8%</p>
+                                <p class="text-green-500 text-sm mt-1"><i class="fas fa-star mr-1"></i>优秀</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-smile text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="font-bold text-lg mb-4">最近订单</h3>
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500 text-sm border-b">
+                                <th class="pb-3">订单号</th>
+                                <th class="pb-3">客户</th>
+                                <th class="pb-3">类型</th>
+                                <th class="pb-3">金额</th>
+                                <th class="pb-3">状态</th>
+                                <th class="pb-3">时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrders">
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3">#TK20240301001</td>
+                                <td class="py-3">张先生</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">机票</span></td>
+                                <td class="py-3 font-semibold">¥2,580</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-green-100 text-green-600 rounded text-sm">已完成</span></td>
+                                <td class="py-3 text-gray-500">10:23</td>
+                            </tr>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3">#HT20240301002</td>
+                                <td class="py-3">李女士</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-purple-100 text-purple-600 rounded text-sm">酒店</span></td>
+                                <td class="py-3 font-semibold">¥1,280</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-sm">待支付</span></td>
+                                <td class="py-3 text-gray-500">10:15</td>
+                            </tr>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3">#TJ20240301003</td>
+                                <td class="py-3">王先生</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-sm">门票</span></td>
+                                <td class="py-3 font-semibold">¥360</td>
+                                <td class="py-3"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">处理中</span></td>
+                                <td class="py-3 text-gray-500">09:58</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Auto Reply Section -->
+            <section id="autoReply" class="hidden p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-reply-all text-blue-600 mr-2"></i>自动回复模板
+                    </h2>
+                    <button onclick="openTemplateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>新建模板
+                    </button>
+                </div>
+
+                <!-- Quick Settings -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-800">自动回复总开关</h3>
+                            <p class="text-sm text-gray-500">关闭后将不会自动回复客户消息</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoReplyEnabled" checked onchange="toggleAutoReply()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Templates Grid -->
+                <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Template 1 -->
+                    <div class="template-card bg-white rounded-xl p-5 border-2 border-gray-100">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">通用</span>
+                                <h4 class="font-bold text-lg mt-2">欢迎语</h4>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="switch" style="width:40px;height:22px;">
+                                    <input type="checkbox" checked onchange="toggleTemplate(1)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">亲爱的游客您好！感谢您选择我们的服务。我是您的专属旅游顾问，很高兴为您服务。请告诉我您的出行需求，我会为您推荐最佳方案！</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span><i class="fas fa-play-circle mr-1"></i>触发: 首次咨询</span>
+                            <div class="space-x-2">
+                                <button onclick="editTemplate(1)" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteTemplate(1)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template 2 -->
+                    <div class="template-card bg-white rounded-xl p-5 border-2 border-gray-100">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded text-xs">订单</span>
+                                <h4 class="font-bold text-lg mt-2">订单确认</h4>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="switch" style="width:40px;height:22px;">
+                                    <input type="checkbox" checked onchange="toggleTemplate(2)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">您的订单已确认！订单号：{order_id}，金额：{amount}。我们将在1小时内发送电子凭证到您的邮箱，请注意查收。如有任何问题，请随时联系客服。</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span><i class="fas fa-play-circle mr-1"></i>触发: 支付成功</span>
+                            <div class="space-x-2">
+                                <button onclick="editTemplate(2)" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteTemplate(2)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template 3 -->
+                    <div class="template-card bg-white rounded-xl p-5 border-2 border-gray-100">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <span class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs">售后</span>
+                                <h4 class="font-bold text-lg mt-2">退款说明</h4>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="switch" style="width:40px;height:22px;">
+                                    <input type="checkbox" onchange="toggleTemplate(3)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">您的退款申请已受理！退款将在1-7个工作日内原路返回至您的支付账户。具体到账时间根据支付渠道不同略有差异，感谢您的理解与支持。</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span><i class="fas fa-play-circle mr-1"></i>触发: 退款申请</span>
+                            <div class="space-x-2">
+                                <button onclick="editTemplate(3)" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteTemplate(3)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template 4 -->
+                    <div class="template-card bg-white rounded-xl p-5 border-2 border-gray-100">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">咨询</span>
+                                <h4 class="font-bold text-lg mt-2">非工作时间</h4>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="switch" style="width:40px;height:22px;">
+                                    <input type="checkbox" checked onchange="toggleTemplate(4)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">您好！感谢您的咨询。当前非工作时间，您的消息已记录，我们将在工作时间内（9:00-21:00）尽快回复您。如有紧急情况，请拨打客服热线：400-888-8888</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span><i class="fas fa-clock mr-1"></i>触发: 非工作时间</span>
+                            <div class="space-x-2">
+                                <button onclick="editTemplate(4)" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteTemplate(4)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Knowledge Base Section -->
+            <section id="knowledge" class="hidden p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-brain text-blue-600 mr-2"></i>IMA知识库管理
+                    </h2>
+                    <div class="flex space-x-3">
+                        <button onclick="syncKnowledge()" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
+                            <i class="fas fa-sync mr-2"></i>同步知识库
+                        </button>
+                        <button onclick="openKnowledgeModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>添加知识
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Knowledge Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-book text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">知识条目</p>
+                                <p class="text-2xl font-bold text-gray-800">1,256</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">已启用</p>
+                                <p class="text-2xl font-bold text-gray-800">1,089</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-search text-orange-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">本周查询</p>
+                                <p class="text-2xl font-bold text-gray-800">15,678</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1 relative">
+                            <input type="text" id="knowledgeSearch" placeholder="搜索知识内容..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <select class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                            <option>全部分类</option>
+                            <option>景点信息</option>
+                            <option>酒店攻略</option>
+                            <option>美食推荐</option>
+                            <option>交通指南</option>
+                        </select>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-search mr-2"></i>搜索
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Knowledge List -->
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-4 border-b">
+                        <h3 class="font-bold text-gray-800">知识列表</h3>
+                    </div>
+                    <div id="knowledgeList" class="divide-y">
+                        <div class="knowledge-item p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="px-2 py-1 bg-green-100 text-green-600 rounded text-xs">景点</span>
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">热门</span>
+                                        <h4 class="font-semibold text-gray-800">故宫博物院门票信息</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-sm">故宫门票分为大门票和钟表馆、珍宝馆等专题展馆。大门票旺季60元/淡季40元。珍宝馆10元，钟表馆10元。开放时间：08:30-17:00...</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <span><i class="fas fa-search mr-1"></i>本周查询: 1,256次</span>
+                                        <span><i class="fas fa-clock mr-1"></i>更新: 2024-02-28</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <label class="switch" style="width:40px;height:22px;">
+                                        <input type="checkbox" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded text-xs">酒店</span>
+                                        <h4 class="font-semibold text-gray-800">三亚亚特兰蒂斯酒店介绍</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-sm">三亚亚特兰蒂斯是集度假酒店、娱乐、餐饮、购物、演艺、国际会展及海洋乐园于一体的综合性度假目的地。海景房均价3000+...</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <span><i class="fas fa-search mr-1"></i>本周查询: 856次</span>
+                                        <span><i class="fas fa-clock mr-1"></i>更新: 2024-02-25</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <label class="switch" style="width:40px;height:22px;">
+                                        <input type="checkbox" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs">美食</span>
+                                        <h4 class="font-semibold text-gray-800">成都必吃美食清单</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-sm">成都美食推荐：小龙坎火锅、蜀大侠火锅、玉林串串香、降龙爪爪、廖记棒棒鸡、夫妻肺片、钟水饺、龙抄手等...</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <span><i class="fas fa-search mr-1"></i>本周查询: 2,156次</span>
+                                        <span><i class="fas fa-clock mr-1"></i>更新: 2024-03-01</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <label class="switch" style="width:40px;height:22px;">
+                                        <input type="checkbox" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <button class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="orders" class="hidden p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-shopping-cart text-blue-600 mr-2"></i>订单管理
+                </h2>
+                
+                <!-- Filter Tabs -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex items-center space-x-4 overflow-x-auto">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg" onclick="filterOrders('all')">全部订单</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg" onclick="filterOrders('pending')">待支付</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg" onclick="filterOrders('processing')">处理中</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg" onclick="filterOrders('completed')">已完成</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg" onclick="filterOrders('cancelled')">已取消</button>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-xl shadow-sm">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500 text-sm border-b bg-gray-50">
+                                <th class="p-4">订单号</th>
+                                <th class="p-4">客户信息</th>
+                                <th class="p-4">产品类型</th>
+                                <th class="p-4">产品详情</th>
+                                <th class="p-4">金额</th>
+                                <th class="p-4">状态</th>
+                                <th class="p-4">下单时间</th>
+                                <th class="p-4">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4 font-mono text-sm">#TK20240301001</td>
+                                <td class="p-4">
+                                    <p class="font-semibold">张先生</p>
+                                    <p class="text-xs text-gray-500">138****8888</p>
+                                </td>
+                                <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">机票</span></td>
+                                <td class="p-4 text-sm">北京→三亚<br>2024-03-15</td>
+                                <td class="p-4 font-bold">¥2,580</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-green-100 text-green-600 rounded text-sm">已完成</span></td>
+                                <td class="p-4 text-sm text-gray-500">03-01 10:23</td>
+                                <td class="p-4">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-eye"></i></button>
+                                    <button class="text-gray-500 hover:text-gray-700"><i class="fas fa-ellipsis-v"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4 font-mono text-sm">#HT20240301002</td>
+                                <td class="p-4">
+                                    <p class="font-semibold">李女士</p>
+                                    <p class="text-xs text-gray-500">139****6666</p>
+                                </td>
+                                <td class="p-4"><span class="px-2 py-1 bg-purple-100 text-purple-600 rounded text-sm">酒店</span></td>
+                                <td class="p-4 text-sm">三亚亚特兰蒂斯<br>3晚 海景房</td>
+                                <td class="p-4 font-bold">¥8,880</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-sm">待支付</span></td>
+                                <td class="p-4 text-sm text-gray-500">03-01 10:15</td>
+                                <td class="p-4">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-eye"></i></button>
+                                    <button class="text-green-500 hover:text-green-700"><i class="fas fa-check"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4 font-mono text-sm">#TJ20240301003</td>
+                                <td class="p-4">
+                                    <p class="font-semibold">王先生</p>
+                                    <p class="text-xs text-gray-500">136****5555</p>
+                                </td>
+                                <td class="p-4"><span class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-sm">门票</span></td>
+                                <td class="p-4 text-sm">迪士尼门票<br>2张 成人票</td>
+                                <td class="p-4 font-bold">¥950</td>
+                                <td class="p-4"><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-sm">处理中</span></td>
+                                <td class="p-4 text-sm text-gray-500">03-01 09:58</td>
+                                <td class="p-4">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-eye"></i></button>
+                                    <button class="text-green-500 hover:text-green-700"><i class="fas fa-check"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="hidden p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-chart-line text-blue-600 mr-2"></i>数据统计
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Revenue Chart Placeholder -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="font-bold text-lg mb-4">收入趋势</h3>
+                        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-chart-area text-4xl mb-2"></i>
+                                <p>收入图表（近30天）</p>
+                                <p class="text-sm">总收入: ¥856,280</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Chart -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="font-bold text-lg mb-4">订单分布</h3>
+                        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-chart-pie text-4xl mb-2"></i>
+                                <p>订单类型分布</p>
+                                <div class="mt-4 space-y-2 text-sm">
+                                    <p><span class="inline-block w-3 h-3 bg-blue-500 rounded mr-2"></span>机票 45%</p>
+                                    <p><span class="inline-block w-3 h-3 bg-purple-500 rounded mr-2"></span>酒店 30%</p>
+                                    <p><span class="inline-block w-3 h-3 bg-orange-500 rounded mr-2"></span>门票 15%</p>
+                                    <p><span class="inline-block w-3 h-3 bg-green-500 rounded mr-2"></span>其他 10%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="hidden p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-cog text-blue-600 mr-2"></i>系统设置
+                </h2>
+                
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-4">供应商信息</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">公司名称</label>
+                            <input type="text" value="携程旅游深圳分公司" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">联系人</label>
+                            <input type="text" value="陈经理" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">联系电话</label>
+                            <input type="text" value="400-888-8888" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                            <input type="email" value="vip@travel.com" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <button class="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>保存设置
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl">
+            <div class="px-6 py-4 border-b flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">新建自动回复模板</h3>
+                <button onclick="closeTemplateModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">模板名称</label>
+                    <input type="text" id="templateName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="例如：欢迎语">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                    <select id="templateCategory" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="common">通用</option>
+                        <option value="order">订单</option>
+                        <option value="service">售后</option>
+                        <option value="consult">咨询</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">触发条件</label>
+                    <select id="templateTrigger" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="all">所有消息</option>
+                        <option value="keyword">关键词触发</option>
+                        <option value="first">首次咨询</option>
+                        <option value="time">非工作时间</option>
+                    </select>
+                </div>
+                <div id="keywordInput" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">关键词（用逗号分隔）</label>
+                    <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="例如：机票,预订">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">回复内容</label>
+                    <textarea id="templateContent" rows="5" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="输入自动回复内容..."></textarea>
+                    <p class="text-xs text-gray-500 mt-1">可用变量：{name}客户名称, {order_id}订单号, {amount}金额</p>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="templateEnabled" checked class="mr-2">
+                    <label for="templateEnabled" class="text-sm text-gray-700">创建后立即启用</label>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t flex justify-end space-x-3">
+                <button onclick="closeTemplateModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">取消</button>
+                <button onclick="saveTemplate()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">保存模板</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Modal -->
+    <div id="knowledgeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl">
+            <div class="px-6 py-4 border-b flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">添加知识条目</h3>
+                <button onclick="closeKnowledgeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                    <input type="text" id="knowledgeTitle" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="知识条目标题">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                    <select id="knowledgeCategory" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="attraction">景点信息</option>
+                        <option value="hotel">酒店攻略</option>
+                        <option value="food">美食推荐</option>
+                        <option value="transport">交通指南</option>
+                        <option value="policy">政策解读</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">标签（用逗号分隔）</label>
+                    <input type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="例如：热门,推荐,必去">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">详细内容</label>
+                    <textarea id="knowledgeContent" rows="8" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="输入完整的知识内容..."></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t flex justify-end space-x-3">
+                <button onclick="closeKnowledgeModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">取消</button>
+                <button onclick="saveKnowledge()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">保存知识</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let templates = JSON.parse(localStorage.getItem('autoTemplates') || JSON.stringify([
+            { id: 1, name: '欢迎语', category: 'common', trigger: 'first', content: '亲爱的游客您好！感谢您选择我们的服务。我是您的专属旅游顾问...', enabled: true },
+            { id: 2, name: '订单确认', category: 'order', trigger: 'keyword', keywords: ['确认', '支付'], content: '您的订单已确认！', enabled: true },
+            { id: 3, name: '退款说明', category: 'service', trigger: 'keyword', keywords: ['退款'], content: '您的退款申请已受理...', enabled: false },
+            { id: 4, name: '非工作时间', category: 'consult', trigger: 'time', content: '您好！当前非工作时间...', enabled: true }
+        ]));
+
+        let knowledgeItems = JSON.parse(localStorage.getItem('knowledgeItems') || JSON.stringify([
+            { id: 1, title: '故宫博物院门票信息', category: 'attraction', tags: ['热门', '景点'], content: '故宫门票分为大门票和专题展馆...', queryCount: 1256, updatedAt: '2024-02-28' },
+            { id: 2, title: '三亚亚特兰蒂斯酒店', category: 'hotel', tags: ['酒店'], content: '三亚亚特兰蒂斯是综合性度假目的地...', queryCount: 856, updatedAt: '2024-02-25' }
+        ]));
+
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) item.classList.add('active');
+            });
+        }
+
+        function toggleAutoReply() {
+            const enabled = document.getElementById('autoReplyEnabled').checked;
+            localStorage.setItem('autoReplyEnabled', enabled);
+        }
+
+        function toggleTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (template) template.enabled = !template.enabled;
+            localStorage.setItem('autoTemplates', JSON.stringify(templates));
+        }
+
+        function openTemplateModal() {
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateContent').value = '';
+        }
+
+        function saveTemplate() {
+            const name = document.getElementById('templateName').value.trim();
+            const content = document.getElementById('templateContent').value.trim();
+            if (!name || !content) {
+                alert('请填写模板名称和内容');
+                return;
+            }
+            const newTemplate = {
+                id: Date.now(),
+                name,
+                category: document.getElementById('templateCategory').value,
+                trigger: document.getElementById('templateTrigger').value,
+                content,
+                enabled: document.getElementById('templateEnabled').checked
+            };
+            templates.push(newTemplate);
+            localStorage.setItem('autoTemplates', JSON.stringify(templates));
+            closeTemplateModal();
+            location.reload();
+        }
+
+        function editTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (template) {
+                document.getElementById('templateName').value = template.name;
+                document.getElementById('templateCategory').value = template.category;
+                document.getElementById('templateTrigger').value = template.trigger;
+                document.getElementById('templateContent').value = template.content;
+                templates = templates.filter(t => t.id !== id);
+                openTemplateModal();
+            }
+        }
+
+        function deleteTemplate(id) {
+            if (confirm('确定要删除此模板吗？')) {
+                templates = templates.filter(t => t.id !== id);
+                localStorage.setItem('autoTemplates', JSON.stringify(templates));
+                location.reload();
+            }
+        }
+
+        document.getElementById('templateTrigger')?.addEventListener('change', function() {
+            document.getElementById('keywordInput').classList.toggle('hidden', this.value !== 'keyword');
+        });
+
+        function openKnowledgeModal() {
+            document.getElementById('knowledgeModal').classList.remove('hidden');
+        }
+
+        function closeKnowledgeModal() {
+            document.getElementById('knowledgeModal').classList.add('hidden');
+        }
+
+        function saveKnowledge() {
+            const title = document.getElementById('knowledgeTitle').value.trim();
+            const content = document.getElementById('knowledgeContent').value.trim();
+            if (!title || !content) {
+                alert('请填写标题和内容');
+                return;
+            }
+            const newItem = {
+                id: Date.now(),
+                title,
+                category: document.getElementById('knowledgeCategory').value,
+                content,
+                queryCount: 0,
+                updatedAt: new Date().toISOString().split('T')[0]
+            };
+            knowledgeItems.push(newItem);
+            localStorage.setItem('knowledgeItems', JSON.stringify(knowledgeItems));
+            closeKnowledgeModal();
+            location.reload();
+        }
+
+        function syncKnowledge() {
+            alert('IMA知识库同步成功！共同步 1,256 条知识记录。');
+        }
+
+        function filterOrders(status) {
+            document.querySelectorAll('#orders button').forEach(btn => {
+                btn.className = btn.className.replace(/bg-blue-600 text-white/g, 'text-gray-600 hover:bg-gray-100');
+            });
+            event.target.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg';
+            // In real app, filter orders by status
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const autoReplyEnabled = localStorage.getItem('autoReplyEnabled');
+            if (autoReplyEnabled !== null) {
+                document.getElementById('autoReplyEnabled').checked = autoReplyEnabled === 'true';
+            }
+        });
+    </script>
+</body>
+</html>

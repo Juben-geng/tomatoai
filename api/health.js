@@ -8,7 +8,6 @@ export default function handler(req, res) {
     status: 'ok',
     flyai: 'available',
     tuniu: 'available',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    timestamp: new Date().toISOString()
   });
 }

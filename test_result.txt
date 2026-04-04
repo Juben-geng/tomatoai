@@ -1,0 +1,17 @@
+=== 酒店API真实测试 ===
+状态: 0
+总数: 14
+
+【途牛酒店】数量: 5
+  - 三亚湾皇冠假日酒店 | ¥899 | https://hotel.tuniu.com
+  - 三亚天域度假酒店 | ¥1288 | https://hotel.tuniu.com
+  - 三亚海棠湾威斯汀度假酒店 | ¥1688 | https://hotel.tuniu.com
+
+【飞猪酒店】数量: 9
+  - 如家旗下-三亚千古情海旅免税城素柏·云酒店 | ¥176 | https://a.feizhu.com/3LTaUA
+  - 轩岩Holiday· 假日酒店(凤凰机场店) | ¥216 | https://a.feizhu.com/0Cl2DD
+  - 三亚凤凰岛海洋之光海景度假酒店 | ¥271 | https://a.feizhu.com/4IozIh
+
+=== 结论 ===
+途牛: 5家 (✅ 有真实数据)
+飞猪: 9家 (✅ 有真实数据)

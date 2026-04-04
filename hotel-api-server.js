@@ -185,25 +185,25 @@ function transformFlyaiHotels(flyaiData) {
 function getMockTuniuHotels(destName) {
     const mockData = {
         '三亚': [
-            { id: 'tn_1', name: '三亚天域度假酒店', star: '豪华型', price: 1288, score: '4.8', src: '途牛', srcTag: 't', address: '三亚市亚龙湾国家旅游度假区', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
-            { id: 'tn_2', name: '三亚亚特兰蒂斯酒店', star: '奢华型', price: 3888, score: '4.9', src: '途牛', srcTag: 't', address: '三亚市海棠区海棠北路36号', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🟣 豪华' },
-            { id: 'tn_3', name: '三亚海棠湾威斯汀度假酒店', star: '高端型', price: 1688, score: '4.7', src: '途牛', srcTag: 't', address: '三亚市海棠区海棠北路', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含早', level: '🔴 高档' },
-            { id: 'tn_4', name: '三亚湾皇冠假日酒店', star: '高端型', price: 899, score: '4.6', src: '途牛', srcTag: 't', address: '三亚市三亚湾路', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '', level: '🟠 舒适' },
-            { id: 'tn_5', name: '三亚蜈支洲岛珊瑚酒店', star: '豪华型', price: 2188, score: '4.8', src: '途牛', srcTag: 't', address: '三亚市海棠区蜈支洲岛', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含三早', level: '🔴 高档' },
+            { id: 'tn_1', name: '三亚天域度假酒店', star: '豪华型', price: 1288, score: '4.8', src: '途牛', srcTag: 't', address: '三亚市亚龙湾国家旅游度假区', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=天域', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
+            { id: 'tn_2', name: '三亚亚特兰蒂斯酒店', star: '奢华型', price: 3888, score: '4.9', src: '途牛', srcTag: 't', address: '三亚市海棠区海棠北路36号', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=亚特兰蒂斯', pic: '', refund: '免费取消', meal: '含双早', level: '🟣 豪华' },
+            { id: 'tn_3', name: '三亚海棠湾威斯汀度假酒店', star: '高端型', price: 1688, score: '4.7', src: '途牛', srcTag: 't', address: '三亚市海棠区海棠北路', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=威斯汀', pic: '', refund: '免费取消', meal: '含早', level: '🔴 高档' },
+            { id: 'tn_4', name: '三亚湾皇冠假日酒店', star: '高端型', price: 899, score: '4.6', src: '途牛', srcTag: 't', address: '三亚市三亚湾路', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=皇冠假日', pic: '', refund: '免费取消', meal: '', level: '🟠 舒适' },
+            { id: 'tn_5', name: '三亚蜈支洲岛珊瑚酒店', star: '豪华型', price: 2188, score: '4.8', src: '途牛', srcTag: 't', address: '三亚市海棠区蜈支洲岛', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=蜈支洲岛', pic: '', refund: '免费取消', meal: '含三早', level: '🔴 高档' },
         ],
         '普吉岛': [
-            { id: 'tn_p1', name: '普吉岛卡塔坦尼海滩度假酒店', star: '五星', price: 988, score: '4.7', src: '途牛', srcTag: 't', address: '普吉岛卡塔海滩', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🟠 舒适' },
-            { id: 'tn_p2', name: '普吉岛希尔顿阿卡迪亚温泉度假酒店', star: '五星', price: 1588, score: '4.8', src: '途牛', srcTag: 't', address: '普吉岛卡伦海滩', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
-            { id: 'tn_p3', name: '普吉岛悦榕庄', star: '超五星', price: 3288, score: '4.9', src: '途牛', srcTag: 't', address: '普吉岛邦涛海滩', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🟣 豪华' },
+            { id: 'tn_p1', name: '普吉岛卡塔坦尼海滩度假酒店', star: '五星', price: 988, score: '4.7', src: '途牛', srcTag: 't', address: '普吉岛卡塔海滩', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=卡塔坦尼', pic: '', refund: '免费取消', meal: '含双早', level: '🟠 舒适' },
+            { id: 'tn_p2', name: '普吉岛希尔顿阿卡迪亚温泉度假酒店', star: '五星', price: 1588, score: '4.8', src: '途牛', srcTag: 't', address: '普吉岛卡伦海滩', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=希尔顿', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
+            { id: 'tn_p3', name: '普吉岛悦榕庄', star: '超五星', price: 3288, score: '4.9', src: '途牛', srcTag: 't', address: '普吉岛邦涛海滩', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=悦榕庄', pic: '', refund: '免费取消', meal: '含双早', level: '🟣 豪华' },
         ],
         '巴厘岛': [
-            { id: 'tn_b1', name: '巴厘岛阿雅娜度假酒店', star: '五星', price: 1888, score: '4.8', src: '途牛', srcTag: 't', address: '巴厘岛金巴兰', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
-            { id: 'tn_b2', name: '巴厘岛宝格丽度假酒店', star: '超五星', price: 6888, score: '4.9', src: '途牛', srcTag: 't', address: '巴厘岛布科半岛', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含早', level: '🟣 豪华' },
-            { id: 'tn_b3', name: '巴厘岛乌布空中花园酒店', star: '五星', price: 2388, score: '4.7', src: '途牛', srcTag: 't', address: '巴厘岛乌布', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
+            { id: 'tn_b1', name: '巴厘岛阿雅娜度假酒店', star: '五星', price: 1888, score: '4.8', src: '途牛', srcTag: 't', address: '巴厘岛金巴兰', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=阿雅娜', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
+            { id: 'tn_b2', name: '巴厘岛宝格丽度假酒店', star: '超五星', price: 6888, score: '4.9', src: '途牛', srcTag: 't', address: '巴厘岛布科半岛', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=宝格丽', pic: '', refund: '免费取消', meal: '含早', level: '🟣 豪华' },
+            { id: 'tn_b3', name: '巴厘岛乌布空中花园酒店', star: '五星', price: 2388, score: '4.7', src: '途牛', srcTag: 't', address: '巴厘岛乌布', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=空中花园', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
         ],
         '新加坡': [
-            { id: 'tn_s1', name: '新加坡滨海湾金沙酒店', star: '五星', price: 2588, score: '4.8', src: '途牛', srcTag: 't', address: '新加坡滨海湾', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '', level: '🔴 高档' },
-            { id: 'tn_s2', name: '新加坡香格里拉大酒店', star: '五星', price: 1688, score: '4.7', src: '途牛', srcTag: 't', address: '新加坡乌节路', url: 'https://hotel.tuniu.com', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
+            { id: 'tn_s1', name: '新加坡滨海湾金沙酒店', star: '五星', price: 2588, score: '4.8', src: '途牛', srcTag: 't', address: '新加坡滨海湾', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=金沙', pic: '', refund: '免费取消', meal: '', level: '🔴 高档' },
+            { id: 'tn_s2', name: '新加坡香格里拉大酒店', star: '五星', price: 1688, score: '4.7', src: '途牛', srcTag: 't', address: '新加坡乌节路', url: 'https://hotel.tuniu.com/hotel-booking/search?keyword=香格里拉', pic: '', refund: '免费取消', meal: '含双早', level: '🔴 高档' },
         ],
     };
     

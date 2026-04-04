@@ -467,5 +467,9 @@ function aiChatSend() {
 }
 </script>
 
+
+<!-- 返回按钮 -->
+<button onclick="goBack()" style="position:fixed;bottom:30px;left:30px;width:50px;height:50px;background:linear-gradient(135deg,#FF6B35,#E55A2B);color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(255,107,53,0.4);z-index:9999;transition:all 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">←</button>
+<script>function goBack(){if(document.referrer&&document.referrer.indexOf(window.location.host)!==-1){history.back()}else{window.location.href='index.html'}}</script>
 </body>
 </html>

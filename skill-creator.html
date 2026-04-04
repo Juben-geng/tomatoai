@@ -201,5 +201,9 @@ function previewSkill(){var name=document.getElementById("skillName").value.trim
 function closeModal(){document.getElementById("detailModal").classList.remove("active")}
 function applyTemplate(type){if(type==="hotel"){document.getElementById("skillName").value="hotel-search";document.getElementById("skillDesc").value="酒店查询助手。触发词：查酒店、酒店价格、OTA查询";document.getElementById("skillFeature").value="快速准确查询酒店信息，支持多平台价格对比。";document.getElementById("skillOutput").value="文本格式：酒店名称、地址、日期、房型、价格\n表格格式：项目对比表\n对比格式：多平台价格+真实预订链接";document.getElementById("skillExample").value="用户输入：查询韩国一山K酒店，4月12-18日双床价格\n输出：酒店名称：一山K酒店\n价格：435 CNY/间夜"}closeModal();showCreateForm()}
 </script>
+
+<!-- 返回按钮 -->
+<button onclick="goBack()" style="position:fixed;bottom:30px;left:30px;width:50px;height:50px;background:linear-gradient(135deg,#FF6B35,#E55A2B);color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(255,107,53,0.4);z-index:9999;transition:all 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">←</button>
+<script>function goBack(){if(document.referrer&&document.referrer.indexOf(window.location.host)!==-1){history.back()}else{window.location.href='index.html'}}</script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # 途牛MCP服务测试结果汇总
 
-## ✅ 全部5个服务测试成功！
+## ✅ 已集成服务（5个）
 
 | 服务 | 工具 | 测试参数 | 结果 |
 |------|------|---------|------|
@@ -9,6 +9,22 @@
 | **train（火车票）** | searchLowestPriceTrain | 北京→上海 2026-04-10 | ✅ 30趟车次 |
 | **ticket（门票）** | query_cheapest_tickets | 三亚蜈支洲岛 | ✅ 96个门票产品 |
 | **cruise（邮轮）** | searchCruiseList | 2026-04-15~20 | ✅ 有产品数据 |
+
+## 🆕 待集成服务（1个）
+
+| 服务 | 状态 | 功能 |
+|------|------|------|
+| **holiday（度假产品）** | ⏳ CLI待更新 | 度假产品搜索、团期查询、在线预订 |
+
+### holiday服务详情（2026-04-05新增）
+- 文档地址：https://open.tuniu.com/mcp/docs/apidoc/mcp/holidayMCP.html
+- 核心工具：
+  - `searchHolidayList` - 度假产品列表搜索（目的地+日期+产品类型筛选）
+  - `getHolidayProductDetail` - 产品详情查询（团期价格日历）
+  - `getHolidayBookingRequiredInfo` - 预订必填信息
+  - `saveHolidayOrder` - 提交订单
+- 支持产品类型：自驾游、自助游、跟团
+- 支持品牌：牛人专线、牛专、牛人严选、乐开花爸妈游、瓜果亲子游
 
 ---
 

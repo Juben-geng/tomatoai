@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 番茄旅行 OTA 酒店比价 API 服务
- * 调用飞猪(FlLiggy) CLI 获取实时酒店价格
+ * 调用飞猪(Fliggy) CLI + 途牛(Tuniu) MCP 获取实时酒店价格
  * 监听 localhost:3000
  * 
  * 关键教训: Windows下 npx/.cmd 输出为空
@@ -9,7 +9,7 @@
  */
 
 const http = require('http');
-const { spawn, execSync } = require('child_process');
+const { spawn, execSync, exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const url = require('url');
@@ -17,6 +17,9 @@ const url = require('url');
 // ==================== 配置 ====================
 const PORT = 3000;
 const HOST = '127.0.0.1';
+
+// 途牛 API Key
+const TUNIU_API_KEY = process.env.TUNIU_API_KEY || 'sk-287d9cbde8184f59a9bc957c85520ee3';
 
 // 飞猪 CLI 路径（Windows兼容方式）
 function getFlyaiCliPath() {
@@ -181,6 +184,52 @@ function transformFlyaiHotels(flyaiData) {
     }));
 }
 
+// ==================== 途牛MCP真实数据 ====================
+function callTuniuMcpSync(destName, checkIn, checkOut) {
+    try {
+        // 使用tuniu_hotel.js脚本调用（绕过libuv bug）
+        const scriptPath = path.join(__dirname, 'tuniu_hotel.js');
+        const cmd = `node "${scriptPath}" "${destName}" "${checkIn}" "${checkOut}"`;
+        console.log('[Tuniu] Calling:', cmd);
+        
+        const stdout = execSync(cmd, {
+            encoding: 'utf8',
+            maxBuffer: 1024 * 1024 * 10,
+            timeout: 30000
+        });
+        
+        const result = JSON.parse(stdout);
+        if (result.success && result.result?.content?.[0]?.text) {
+            const hotelData = JSON.parse(result.result.content[0].text);
+            if (hotelData.success && hotelData.hotels) {
+                const hotels = hotelData.hotels.map((h, i) => ({
+                    id: `tn_${h.hotelId || i}`,
+                    name: h.hotelName || '',
+                    star: h.starName || '',
+                    price: h.lowestPrice || 0,
+                    priceStr: `¥${(h.lowestPrice || 0).toLocaleString()}起`,
+                    score: h.commentScore ? `${h.commentScore}分` : '',
+                    src: '途牛',
+                    srcTag: 't',
+                    address: h.address || '',
+                    pic: h.firstPic || '',
+                    url: `https://hotel.tuniu.com/hotel-booking/search?keyword=${encodeURIComponent(h.hotelName || '')}`,
+                    refund: h.refund || '',
+                    meal: h.meal || '',
+                    level: getPriceLevel(h.lowestPrice || 0),
+                    rank: i + 1,
+                }));
+                console.log(`[Tuniu] ✅ 成功获取 ${hotels.length} 家酒店`);
+                return hotels;
+            }
+        }
+        return null;
+    } catch (e) {
+        console.error('[Tuniu] Error:', e.message);
+        return null;
+    }
+}
+
 // ==================== 模拟途牛数据（备用） ====================
 function getMockTuniuHotels(destName) {
     const mockData = {
@@ -289,6 +338,15 @@ const server = http.createServer(async (req, res) => {
 
         let flyaiHotels = [];
         let flyaiSuccess = false;
+        let tuniuHotels = [];
+        let tuniuSuccess = false;
+
+        // 尝试调用途牛 MCP（真实数据）
+        const tuniuResult = callTuniuMcpSync(destName, checkIn, checkOut);
+        if (tuniuResult && tuniuResult.length > 0) {
+            tuniuHotels = tuniuResult;
+            tuniuSuccess = true;
+        }
 
         // 尝试调用飞猪 CLI
         if (FLYAI_CLI_PATH) {
@@ -304,26 +362,26 @@ const server = http.createServer(async (req, res) => {
                 console.log(`[FLYAI] ❌ 失败: ${e.message}`);
             }
         } else {
-            console.log('[FLYAI] ⚠️ CLI未找到，使用模拟数据');
+            console.log('[FLYAI] ⚠️ CLI未找到');
         }
 
-        // 获取途牛模拟数据（合并到结果中）
-        const tuniuHotels = getMockTuniuHotels(destName);
+        // 如果途牛失败，使用模拟数据
+        if (!tuniuSuccess) {
+            tuniuHotels = getMockTuniuHotels(destName);
+            console.log(`[TUNIU] ⚠️ 使用模拟数据 ${tuniuHotels.length} 家酒店`);
+        }
 
         // 合并两个来源的数据
         let allHotels = [];
         
+        // 合并途牛和飞猪数据
+        allHotels = [...tuniuHotels];
+        
+        // 如果有飞猪数据，合并进去（去除重复）
         if (flyaiSuccess && flyaiHotels.length > 0) {
-            // 优先使用飞猪数据，补充途牛数据
-            allHotels = [...flyaiHotels];
-            
-            // 如果目的地有途牛数据，合并进去（去除重复）
-            const flyaiNames = new Set(flyaiHotels.map(h => h.name));
-            const uniqueTuniu = tuniuHotels.filter(h => !flyaiNames.has(h.name));
-            allHotels = [...allHotels, ...uniqueTuniu];
-        } else {
-            // 没有飞猪数据时，使用途牛数据
-            allHotels = tuniuHotels.map((h, i) => ({ ...h, rank: i + 1 }));
+            const tuniuNames = new Set(tuniuHotels.map(h => h.name));
+            const uniqueFlyai = flyaiHotels.filter(h => !tuniuNames.has(h.name));
+            allHotels = [...allHotels, ...uniqueFlyai];
         }
 
         // 如果有关键词，进一步过滤
@@ -358,14 +416,16 @@ const server = http.createServer(async (req, res) => {
                 keyWords,
                 hotels: allHotels,
                 flyaiSuccess,
-                flyaiCount: fyCount,
-                tuniuCount: tnCount,
+                tuniuSuccess,
+                flyaiCount: flyaiHotels.length,
+                tuniuCount: tuniuHotels.length,
             },
             meta: {
                 total: allHotels.length,
-                tuniuCount: tnCount,
-                flyaiCount: fyCount,
+                tuniuCount: tuniuHotels.length,
+                flyaiCount: flyaiHotels.length,
                 flyaiSuccess,
+                tuniuSuccess,
                 timestamp: new Date().toISOString(),
             }
         });

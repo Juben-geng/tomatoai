@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会员与积分 · 番茄旅行 AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--txt:#e6edf3;--muted:#8b949e;--p:#ff6b35;--a:#00c9a7;--b:#58a6ff}
+body{font-family:'Noto Sans SC',sans-serif;background:radial-gradient(ellipse at top,#1a2332 0%,var(--bg) 55%);color:var(--txt);min-height:100vh;padding:48px 20px 80px}
+a{color:var(--b);text-decoration:none}
+a:hover{text-decoration:underline}
+.top{max-width:1120px;margin:0 auto 40px;text-align:center}
+h1{font-size:28px;font-weight:700;margin-bottom:12px;background:linear-gradient(90deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{color:var(--muted);font-size:15px;line-height:1.6;max-width:640px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:1120px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:24px;display:flex;flex-direction:column;min-height:420px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.card h2{font-size:18px;margin-bottom:6px}
+.tag{font-size:12px;color:var(--muted);margin-bottom:16px;min-height:40px}
+.price{font-size:26px;font-weight:700;margin-bottom:6px}
+.price small{font-size:13px;color:var(--muted);font-weight:500}
+.note{font-size:12px;color:var(--a);margin-bottom:16px;min-height:20px}
+.btn{margin-top:auto;padding:12px 16px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:14px;transition:opacity .2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-outline{background:transparent;border:2px solid var(--b);color:var(--b)}
+.btn-green{background:var(--a);color:#0d1117}
+.btn-blue{background:var(--b);color:#fff}
+.btn-grad{background:linear-gradient(90deg,var(--b),#a371f7);color:#fff}
+ul{list-style:none;font-size:13px;color:var(--muted);flex:1}
+ul li{padding:8px 0;border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:flex-start}
+ul li::before{content:'✓';color:var(--a);font-weight:700;flex-shrink:0}
+.hint{max-width:1120px;margin:48px auto 0;padding:20px;background:rgba(22,27,34,.8);border:1px solid var(--bd);border-radius:12px;font-size:13px;color:var(--muted);line-height:1.7}
+.back{position:fixed;bottom:24px;left:24px;padding:12px 18px;background:var(--card);border:1px solid var(--bd);border-radius:999px;color:var(--txt);font-size:13px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>轻松起步，按量使用番茄旅行 AI</h1>
+  <p class="sub">OTA 实时比价（途牛 + 飞猪）、即梦生图与美图降级、视频与飞书同步——积分与会员等级统一管理，超额可充值积分继续使用。</p>
+</div>
+<div class="grid" id="tierGrid">
+  <p style="grid-column:1/-1;color:var(--muted)">正在加载档位说明…</p>
+</div>
+<div class="hint">
+  <strong style="color:var(--txt)">说明：</strong> 实际额度与积分消耗以服务端 <code>data/membership.json</code> 与后台配置为准；本页数据来自 <code>/api/member/config</code>。
+  创意能力依赖本机安装 <code>dreamina</code> / <code>meitu</code> CLI 与对应环境变量，部署在无 CLI 的环境时需自建网关或关闭相关入口。
+</div>
+<a class="back" href="index.html">← 返回首页</a>
+<script>
+(function(){
+  var API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://127.0.0.1:3000' : window.location.origin;
+  var grid = document.getElementById('tierGrid');
+  fetch(API + '/api/member/config').then(function(r){ return r.json(); }).then(function(j){
+    if(j.status !== 0 || !j.data || !j.data.tiers){ grid.innerHTML = '<p style="grid-column:1/-1;color:#f85149">无法加载配置，请启动 node hotel-api-server.js</p>'; return; }
+    var tiers = j.data.tiers;
+    var costs = j.data.costs || {};
+    var html = tiers.map(function(t){
+      var m = t.monthly || {};
+      var perks = (t.perks || []).map(function(p){ return '<li>' + p + '</li>'; }).join('');
+      var extra = '<li>月度 OTA 查询约 <strong style="color:#e6edf3">' + (m.otaQuery != null ? m.otaQuery : '—') + '</strong> 次（超出后每次约 ' + (costs.otaQuery||0) + ' 积分）</li>';
+      extra += '<li>生图约 <strong style="color:#e6edf3">' + (m.imageGen!=null?m.imageGen:'—') + '</strong> 次 / 改图 <strong style="color:#e6edf3">' + (m.imageEdit!=null?m.imageEdit:'—') + '</strong> 次</li>';
+      extra += '<li>视频额度 <strong style="color:#e6edf3">' + (m.videoGen!=null?m.videoGen:'—') + '</strong> 次/月（超额每次约 ' + (costs.videoGen||0) + ' 积分）</li>';
+      var price = t.id === 'enterprise' ? '灵活定价' : (t.id === 'free' ? '¥0 <small>/ 月</small>' : '按套餐或积分');
+      var btn = t.id === 'enterprise'
+        ? '<button class="btn btn-grad" type="button" onclick="location.href=\'mailto:support@tomato.travel\'">联系我们</button>'
+        : (t.id === 'free'
+          ? '<a class="btn btn-outline" style="text-align:center" href="ai-assistant.html">立即使用</a>'
+          : '<a class="btn btn-green" style="text-align:center" href="ai-assistant.html">开通使用</a>');
+      return '<div class="card"><h2>' + t.name + '</h2><div class="tag">' + (t.subtitle||'') + '</div><div class="price">' + price + '</div><div class="note">' + (t.id === 'travel' || t.id === 'pro' ? '支持与积分组合使用' : '') + '</div><ul>' + extra + perks + '</ul>' + btn + '</div>';
+    }).join('');
+    grid.innerHTML = html;
+  }).catch(function(){
+    grid.innerHTML = '<p style="grid-column:1/-1;color:#f85149">网络错误：' + API + '</p>';
+  });
+})();
+</script>
+</body>
+</html>

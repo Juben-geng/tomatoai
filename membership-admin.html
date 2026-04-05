@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会员管理 - 番茄旅行AI管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#FF6B35;--p-dark:#E55A2B;--s:#00C9A7;--d:#F56565;--w:#ED8936;--bg:#F7FAFC;--t:#1A202C;--g:#718096;--b:rgba(0,0,0,0.1)}
+body{font-family:"Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#FFF9F5,#F0FFF9);color:var(--t)}
+.login-c{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--p),#FF8C5A)}
+.login-b{background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:100%;max-width:420px}
+.login-h{font-size:26px;font-weight:700;margin-bottom:8px;color:var(--t);text-align:center}
+.login-s{font-size:14px;color:var(--g);margin-bottom:24px;text-align:center}
+.fg{margin-bottom:18px}
+.fl{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:var(--t)}
+.fi{width:100%;padding:12px 14px;border:2px solid #E2E8F0;border-radius:10px;font-size:14px;transition:all 0.2s}
+.fi:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(255,107,53,0.1)}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:14px;background:linear-gradient(135deg,var(--p),#FF8C5A);color:#fff;transition:all 0.2s}
+.btn:hover{transform:translateY(-1px)}
+.err{color:var(--d);font-size:13px;margin-top:8px;padding:8px 12px;background:#FED7D7;border-radius:8px;display:none}
+.admin-c{display:none;flex-direction:column;height:100vh}
+.header{background:#fff;padding:14px 24px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--p)}
+.user-info{display:flex;align-items:center;gap:14px}
+.user-name{font-weight:600;color:var(--t)}
+.logout-btn{padding:8px 16px;border:1px solid var(--b);border-radius:8px;cursor:pointer;font-size:13px;background:#fff;transition:all 0.2s}
+.logout-btn:hover{background:var(--d);color:#fff;border-color:var(--d)}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--b);overflow-y:auto}
+.nav-item{padding:14px 18px;border-left:3px solid transparent;cursor:pointer;font-size:14px;transition:all 0.2s;display:flex;align-items:center;gap:10px;color:var(--g)}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{border-left-color:var(--p);background:linear-gradient(90deg,rgba(255,107,53,0.1),transparent);font-weight:600;color:var(--p)}
+.content{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ph{font-size:22px;font-weight:700;margin-bottom:20px;color:var(--t)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px}
+.stat{background:#fff;padding:20px;border-radius:12px;border:1px solid var(--b);box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.stat-v{font-size:28px;font-weight:700;color:var(--p);margin-bottom:6px}
+.stat-l{font-size:13px;color:var(--g)}
+.table-c{background:#fff;border-radius:12px;border:1px solid var(--b);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.table-h{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}
+.table-t{font-weight:600;font-size:15px}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg);padding:12px 16px;text-align:left;font-weight:600;font-size:12px;color:var(--g);text-transform:uppercase}
+.table td{padding:12px 16px;border-top:1px solid var(--b);font-size:13px}
+.table tr:hover{background:rgba(255,107,53,0.03)}
+.badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-s{background:#C6F6D5;color:#22543D}
+.badge-w{background:#FEEBC8;color:#744210}
+.badge-d{background:#FED7D7;color:#822727}
+.badge-i{background:#BEE3F8;color:#2A4365}
+.btn-sm{padding:6px 14px;border-radius:6px;border:1px solid var(--b);background:#fff;cursor:pointer;font-size:12px;margin-right:6px;transition:all 0.2s}
+.btn-sm:hover{background:var(--p);color:#fff;border-color:var(--p)}
+.btn-sm.danger:hover{background:var(--d);border-color:var(--d)}
+.form-g{margin-bottom:16px}
+.form-l{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:var(--t)}
+.form-i{width:100%;padding:10px 12px;border:2px solid #E2E8F0;border-radius:8px;font-size:13px}
+.form-i:focus{outline:none;border-color:var(--p)}
+.form-s{width:100%;padding:10px 12px;border:2px solid #E2E8F0;border-radius:8px;font-size:13px;background:#fff}
+.btn-g{display:flex;gap:10px;margin-top:20px}
+.btn-g .btn{flex:1}
+.btn.secondary{background:#fff;border:2px solid var(--b);color:var(--t)}
+.btn.secondary:hover{background:var(--bg)}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-c{background:#fff;border-radius:16px;width:90%;max-width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal-h{padding:18px 24px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}
+.modal-t{font-size:17px;font-weight:600}
+.close-btn{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:18px;transition:all 0.2s}
+.close-btn:hover{background:var(--d);color:#fff}
+.modal-b{padding:24px}
+.search-box{display:flex;gap:10px;margin-bottom:16px}
+.search-box input{flex:1}
+.empty{text-align:center;padding:40px;color:var(--g)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;background:#fff;border:1px solid var(--b);transition:all 0.2s}
+.tab:hover{background:var(--bg)}
+.tab.active{background:var(--p);color:#fff;border-color:var(--p)}
+/* 配置卡片 */
+.config-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid var(--b)}
+.config-title{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--t)}
+.config-row{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.config-label{min-width:120px;font-size:13px;color:var(--g)}
+.config-input{padding:8px 12px;border:2px solid #E2E8F0;border-radius:8px;font-size:13px;width:120px}
+.config-input:focus{outline:none;border-color:var(--p)}
+/* 等级配置卡片 */
+.level-config-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:2px solid var(--b);position:relative}
+.level-config-card.bronze{border-color:var(--w)}
+.level-config-card.silver{border-color:#C0C0C0}
+.level-config-card.gold{border-color:#FFD700}
+.level-config-card.diamond{border-color:#00CED1}
+.level-config-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.level-config-icon{font-size:32px}
+.level-config-name{font-size:18px;font-weight:600}
+.level-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.level-config-item{display:flex;flex-direction:column;gap:6px}
+.level-config-item label{font-size:12px;color:var(--g)}
+.level-config-item input{padding:10px;border:2px solid #E2E8F0;border-radius:8px;font-size:14px}
+/* 会员详情卡片 */
+.member-detail-card{background:#fff;border-radius:16px;padding:24px;margin-bottom:20px}
+.member-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.member-detail-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--p),#FF8C5A);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff}
+.member-detail-info h3{font-size:20px;margin-bottom:4px}
+.member-detail-info p{font-size:13px;color:var(--g)}
+.member-detail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.member-stat{text-align:center;padding:16px;background:var(--bg);border-radius:12px}
+.member-stat .value{font-size:24px;font-weight:700;color:var(--p)}
+.member-stat .label{font-size:12px;color:var(--g);margin-top:4px}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{display:none}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- 登录界面 -->
+<div class="login-c" id="loginPage">
+<div class="login-b">
+<div class="login-h">🍅 番茄旅行AI</div>
+<div class="login-s">会员管理后台</div>
+<div class="fg">
+<label class="fl">管理员邮箱</label>
+<input type="email" class="fi" id="email" placeholder="请输入管理员邮箱">
+</div>
+<div class="fg">
+<label class="fl">登录密码</label>
+<input type="password" class="fi" id="password" placeholder="请输入密码">
+</div>
+<div class="err" id="errMsg"></div>
+<button class="btn" onclick="login()" style="margin-top:20px">登 录</button>
+</div>
+</div>
+
+<!-- 管理后台 -->
+<div class="admin-c" id="adminPage">
+<header class="header">
+<div class="logo">🍅 番茄旅行AI · 会员管理</div>
+<div class="user-info">
+<span class="user-name" id="adminName">管理员</span>
+<button class="logout-btn" onclick="logout()">退出登录</button>
+</div>
+</header>
+
+<div class="main">
+<aside class="sidebar">
+<div style="padding:14px 18px;border-bottom:1px solid var(--b);font-weight:600;font-size:13px;color:var(--g)">功能菜单</div>
+<div class="nav-item active" onclick="switchPanel('overview')">📊 统计概览</div>
+<div class="nav-item" onclick="switchPanel('members')">👥 会员列表</div>
+<div class="nav-item" onclick="switchPanel('points')">💎 积分配置</div>
+<div class="nav-item" onclick="switchPanel('levels')">🏅 等级配置</div>
+<div class="nav-item" onclick="switchPanel('recharges')">💳 充值记录</div>
+<div style="padding:14px 18px;border-top:1px solid var(--b);margin-top:10px">
+<a href="admin-panel.html" style="color:var(--g);text-decoration:none;font-size:13px">← 返回主后台</a>
+</div>
+</aside>
+
+<main class="content">
+<!-- 统计概览 -->
+<div class="panel active" id="overview">
+<h2 class="ph">会员统计概览</h2>
+<div class="stats">
+<div class="stat"><div class="stat-v" id="totalMembers">0</div><div class="stat-l">总会员数</div></div>
+<div class="stat"><div class="stat-v" id="totalPoints">0</div><div class="stat-l">积分发行总量</div></div>
+<div class="stat"><div class="stat-v" id="totalRecharge">¥0</div><div class="stat-l">充值总额</div></div>
+<div class="stat"><div class="stat-v" id="activeMembers">0</div><div class="stat-l">活跃会员(7天)</div></div>
+</div>
+<h3 style="margin:30px 0 16px;font-size:16px">各等级会员分布</h3>
+<div class="stats">
+<div class="stat" style="border-left:4px solid var(--w)"><div class="stat-v" id="bronzeCount">0</div><div class="stat-l">🥉 青铜会员</div></div>
+<div class="stat" style="border-left:4px solid #C0C0C0"><div class="stat-v" id="silverCount">0</div><div class="stat-l">🥈 白银会员</div></div>
+<div class="stat" style="border-left:4px solid #FFD700"><div class="stat-v" id="goldCount">0</div><div class="stat-l">🥇 黄金会员</div></div>
+<div class="stat" style="border-left:4px solid #00CED1"><div class="stat-v" id="diamondCount">0</div><div class="stat-l">💎 钻石会员</div></div>
+</div>
+<h3 style="margin:30px 0 16px;font-size:16px">最近充值记录</h3>
+<div class="table-c">
+<table class="table">
+<thead><tr><th>会员</th><th>套餐</th><th>金额</th><th>时间</th></tr></thead>
+<tbody id="recentRecharges"></tbody>
+</table>
+</div>
+</div>
+
+<!-- 会员列表 -->
+<div class="panel" id="members">
+<h2 class="ph">会员列表</h2>
+<div class="search-box">
+<input type="text" class="form-i" id="memberSearch" placeholder="搜索会员昵称或ID..." oninput="searchMembers()">
+<select class="form-s" style="width:140px" id="levelFilter" onchange="filterMembers()">
+<option value="">全部等级</option>
+<option value="1">🥉 青铜</option>
+<option value="2">🥈 白银</option>
+<option value="3">🥇 黄金</option>
+<option value="4">💎 钻石</option>
+</select>
+<select class="form-s" style="width:140px" id="statusFilter" onchange="filterMembers()">
+<option value="">全部状态</option>
+<option value="active">有效</option>
+<option value="expired">已过期</option>
+</select>
+</div>
+<div class="table-c">
+<table class="table">
+<thead><tr><th>会员ID</th><th>昵称</th><th>等级</th><th>积分余额</th><th>到期时间</th><th>状态</th><th>操作</th></tr></thead>
+<tbody id="membersList"></tbody>
+</table>
+</div>
+<div class="empty" id="emptyMembers" style="display:none">
+<div class="empty-icon">👥</div>
+<p>暂无会员数据</p>
+</div>
+</div>
+
+<!-- 积分配置 -->
+<div class="panel" id="points">
+<h2 class="ph">积分配置</h2>
+<div class="config-card">
+<div class="config-title">📅 签到奖励配置</div>
+<div class="config-row">
+<span class="config-label">每日签到积分</span>
+<input type="number" class="config-input" id="signinBase" value="10" min="1">
+<span style="font-size:13px;color:var(--g)">基础积分，连续签到翻倍(最多7倍)</span>
+</div>
+</div>
+<div class="config-card">
+<div class="config-title">🎯 任务奖励配置</div>
+<div class="config-row">
+<span class="config-label">查询酒店</span>
+<input type="number" class="config-input" id="taskHotel" value="5" min="1">
+<span style="font-size:13px;color:var(--g)">每次获得积分</span>
+</div>
+<div class="config-row">
+<span class="config-label">查询机票</span>
+<input type="number" class="config-input" id="taskFlight" value="5" min="1">
+<span style="font-size:13px;color:var(--g)">每次获得积分</span>
+</div>
+<div class="config-row">
+<span class="config-label">生成行程</span>
+<input type="number" class="config-input" id="taskItinerary" value="20" min="1">
+<span style="font-size:13px;color:var(--g)">每次获得积分</span>
+</div>
+<div class="config-row">
+<span class="config-label">分享好友</span>
+<input type="number" class="config-input" id="taskShare" value="30" min="1">
+<span style="font-size:13px;color:var(--g)">每次获得积分</span>
+</div>
+</div>
+<div class="config-card">
+<div class="config-title">💎 积分兑换配置</div>
+<div class="config-row">
+<span class="config-label">白银会员(月)</span>
+<input type="number" class="config-input" id="exchangeSilver" value="500" min="100">
+<span style="font-size:13px;color:var(--g)">所需积分</span>
+</div>
+<div class="config-row">
+<span class="config-label">黄金会员(月)</span>
+<input type="number" class="config-input" id="exchangeGold" value="1500" min="500">
+<span style="font-size:13px;color:var(--g)">所需积分</span>
+</div>
+</div>
+<div class="config-card">
+<div class="config-title">💰 积分充值配置</div>
+<div class="config-row">
+<span class="config-label">¥1 = </span>
+<input type="number" class="config-input" id="pointsPerYuan" value="10" min="1">
+<span style="font-size:13px;color:var(--g)">积分</span>
+</div>
+</div>
+<button class="btn" style="width:200px;margin-top:20px" onclick="savePointsConfig()">保存配置</button>
+</div>
+
+<!-- 等级配置 -->
+<div class="panel" id="levels">
+<h2 class="ph">等级配置</h2>
+<div class="level-config-card bronze">
+<div class="level-config-header">
+<span class="level-config-icon">🥉</span>
+<span class="level-config-name">青铜会员</span>
+</div>
+<div class="level-config-grid">
+<div class="level-config-item"><label>所需积分</label><input type="number" value="0" id="level1Points" disabled></div>
+<div class="level-config-item"><label>月度价格</label><input type="number" value="0" id="level1Month"></div>
+<div class="level-config-item"><label>年度价格</label><input type="number" value="0" id="level1Year"></div>
+</div>
+</div>
+<div class="level-config-card silver">
+<div class="level-config-header">
+<span class="level-config-icon">🥈</span>
+<span class="level-config-name">白银会员</span>
+</div>
+<div class="level-config-grid">
+<div class="level-config-item"><label>所需积分</label><input type="number" value="500" id="level2Points"></div>
+<div class="level-config-item"><label>月度价格</label><input type="number" value="29" id="level2Month"></div>
+<div class="level-config-item"><label>年度价格</label><input type="number" value="299" id="level2Year"></div>
+</div>
+</div>
+<div class="level-config-card gold">
+<div class="level-config-header">
+<span class="level-config-icon">🥇</span>
+<span class="level-config-name">黄金会员</span>
+</div>
+<div class="level-config-grid">
+<div class="level-config-item"><label>所需积分</label><input type="number" value="2000" id="level3Points"></div>
+<div class="level-config-item"><label>月度价格</label><input type="number" value="79" id="level3Month"></div>
+<div class="level-config-item"><label>年度价格</label><input type="number" value="699" id="level3Year"></div>
+</div>
+</div>
+<div class="level-config-card diamond">
+<div class="level-config-header">
+<span class="level-config-icon">💎</span>
+<span class="level-config-name">钻石会员</span>
+</div>
+<div class="level-config-grid">
+<div class="level-config-item"><label>所需积分</label><input type="number" value="5000" id="level4Points"></div>
+<div class="level-config-item"><label>月度价格</label><input type="number" value="199" id="level4Month"></div>
+<div class="level-config-item"><label>年度价格</label><input type="number" value="1599" id="level4Year"></div>
+</div>
+</div>
+<button class="btn" style="width:200px;margin-top:20px" onclick="saveLevelConfig()">保存配置</button>
+</div>
+
+<!-- 充值记录 -->
+<div class="panel" id="recharges">
+<h2 class="ph">充值记录</h2>
+<div class="search-box">
+<input type="text" class="form-i" id="rechargeSearch" placeholder="搜索会员昵称..." oninput="searchRecharges()">
+<select class="form-s" style="width:140px" id="rechargeTypeFilter" onchange="filterRecharges()">
+<option value="">全部类型</option>
+<option value="monthly">月度套餐</option>
+<option value="yearly">年度套餐</option>
+<option value="points">积分充值</option>
+</select>
+</div>
+<div class="table-c">
+<table class="table">
+<thead><tr><th>订单号</th><th>会员</th><th>类型</th><th>内容</th><th>金额</th><th>时间</th><th>状态</th></tr></thead>
+<tbody id="rechargesList"></tbody>
+</table>
+</div>
+<div class="empty" id="emptyRecharges" style="display:none">
+<div class="empty-icon">💳</div>
+<p>暂无充值记录</p>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- 会员详情模态框 -->
+<div class="modal" id="memberModal">
+<div class="modal-c" style="max-width:600px">
+<div class="modal-h"><span class="modal-t">会员详情</span><button class="close-btn" onclick="closeModal('memberModal')">×</button></div>
+<div class="modal-b" id="memberDetailContent"></div>
+</div>
+</div>
+
+<script>
+var adminUser=null;
+var membersData=[];
+var rechargesData=[];
+var pointsConfig={
+signinBase:10,
+taskHotel:5,
+taskFlight:5,
+taskItinerary:20,
+taskShare:30,
+exchangeSilver:500,
+exchangeGold:1500,
+pointsPerYuan:10
+};
+var levelConfig=[
+{id:1,points:0,month:0,year:0},
+{id:2,points:500,month:29,year:299},
+{id:3,points:2000,month:79,year:699},
+{id:4,points:5000,month:199,year:1599}
+];
+document.addEventListener('DOMContentLoaded',function(){
+loadConfig();
+checkAdminLogin();
+loadData();
+});
+function loadConfig(){
+var stored=localStorage.getItem('tomato_membership_config');
+if(stored){
+var config=JSON.parse(stored);
+pointsConfig=config.points||pointsConfig;
+levelConfig=config.levels||levelConfig;
+}
+}
+function saveConfig(){
+localStorage.setItem('tomato_membership_config',JSON.stringify({points:pointsConfig,levels:levelConfig}));
+}
+function checkAdminLogin(){
+try{
+var admin=JSON.parse(localStorage.getItem('admin_user')||'null');
+if(admin&&admin.email){
+adminUser=admin;
+showAdminPanel();
+}
+}catch(e){}
+}
+function login(){
+var email=document.getElementById('email').value.trim();
+var pwd=document.getElementById('password').value.trim();
+var err=document.getElementById('errMsg');
+if(!email||!pwd){
+err.textContent='请输入账号和密码';
+err.style.display='block';
+return;
+}
+if(email==='jygxb2464@163.com'&&pwd==='60014606'){
+adminUser={email:email,name:'超级管理员'};
+localStorage.setItem('admin_user',JSON.stringify(adminUser));
+showAdminPanel();
+}else{
+err.textContent='账号或密码错误';
+err.style.display='block';
+}
+}
+function logout(){
+if(confirm('确定要退出登录吗？')){
+localStorage.removeItem('admin_user');
+adminUser=null;
+document.getElementById('loginPage').style.display='flex';
+document.getElementById('adminPage').style.display='none';
+}
+}
+function showAdminPanel(){
+document.getElementById('loginPage').style.display='none';
+document.getElementById('adminPage').style.display='flex';
+document.getElementById('adminName').textContent=adminUser.name;
+loadData();
+}
+function switchPanel(panelId){
+document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});
+document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+document.querySelector('.nav-item[onclick*="'+panelId+'"]').classList.add('active');
+document.getElementById(panelId).classList.add('active');
+}
+function loadData(){
+loadMembersData();
+loadRechargesData();
+renderOverview();
+renderMembersList();
+renderRechargesList();
+loadConfigToForm();
+}
+function loadMembersData(){
+var stored=localStorage.getItem('tomato_member');
+if(stored){
+var mainMember=JSON.parse(stored);
+membersData=[{
+id:'M001',
+name:mainMember.name,
+avatar:mainMember.avatar,
+level:mainMember.level,
+points:mainMember.points,
+totalPoints:mainMember.totalPoints,
+expireDate:mainMember.expireDate,
+registerDate:'2026-01-01',
+lastActive:new Date().toISOString().split('T')[0],
+signinDays:mainMember.signinDays,
+records:mainMember.records||[]
+}];
+}
+// 模拟数据
+for(var i=0;i<10;i++){
+membersData.push({
+id:'M'+String(i+2).padStart(3,'0'),
+name:'旅行者'+(i+2),
+avatar:'🍅',
+level:Math.floor(Math.random()*4)+1,
+points:Math.floor(Math.random()*1000),
+totalPoints:Math.floor(Math.random()*5000),
+expireDate:new Date(Date.now()+Math.random()*90*86400000).toISOString().split('T')[0],
+registerDate:new Date(Date.now()-Math.random()*365*86400000).toISOString().split('T')[0],
+lastActive:new Date(Date.now()-Math.random()*7*86400000).toISOString().split('T')[0],
+signinDays:Math.floor(Math.random()*30),
+records:[]
+});
+}
+}
+function loadRechargesData(){
+var stored=localStorage.getItem('tomato_member');
+if(stored){
+var member=JSON.parse(stored);
+if(member.purchaseHistory){
+rechargesData=member.purchaseHistory.map(function(p,i){
+return{
+id:'R'+String(i+1).padStart(6,'0'),
+memberId:'M001',
+memberName:member.name,
+type:p.type,
+level:p.level,
+content:p.type==='points'?p.level+'积分':(p.type==='yearly'?'年度':'月度')+'会员',
+amount:p.price,
+time:p.date,
+status:'已完成'
+};
+});
+}
+}
+// 模拟数据
+for(var i=0;i<20;i++){
+var types=['monthly','yearly','points'];
+var type=types[Math.floor(Math.random()*types.length)];
+var level=type==='points'?Math.floor(Math.random()*10+1)*100:Math.floor(Math.random()*3)+2;
+rechargesData.push({
+id:'R'+String(i+100).padStart(6,'0'),
+memberId:'M'+String(Math.floor(Math.random()*10)+1).padStart(3,'0'),
+memberName:'旅行者'+(Math.floor(Math.random()*10)+1),
+type:type,
+level:level,
+content:type==='points'?level+'积分':'会员套餐',
+amount:type==='points'?Math.ceil(level/10):Math.floor(Math.random()*200)+29,
+time:new Date(Date.now()-Math.random()*30*86400000).toISOString(),
+status:'已完成'
+});
+}
+}
+function renderOverview(){
+var total=membersData.length;
+var bronze=membersData.filter(function(m){return m.level===1;}).length;
+var silver=membersData.filter(function(m){return m.level===2;}).length;
+var gold=membersData.filter(function(m){return m.level===3;}).length;
+var diamond=membersData.filter(function(m){return m.level===4;}).length;
+var totalPts=membersData.reduce(function(sum,m){return sum+m.totalPoints;},0);
+var totalRecharge=rechargesData.reduce(function(sum,r){return sum+r.amount;},0);
+var weekAgo=new Date(Date.now()-7*86400000).toISOString().split('T')[0];
+var active=membersData.filter(function(m){return m.lastActive>=weekAgo;}).length;
+document.getElementById('totalMembers').textContent=total;
+document.getElementById('bronzeCount').textContent=bronze;
+document.getElementById('silverCount').textContent=silver;
+document.getElementById('goldCount').textContent=gold;
+document.getElementById('diamondCount').textContent=diamond;
+document.getElementById('totalPoints').textContent=totalPts;
+document.getElementById('totalRecharge').textContent='¥'+totalRecharge;
+document.getElementById('activeMembers').textContent=active;
+// 最近充值
+var recent=rechargesData.slice(0,5);
+var html='';
+recent.forEach(function(r){
+html+='<tr><td>'+r.memberName+'</td><td>'+r.content+'</td><td>¥'+r.amount+'</td><td>'+new Date(r.time).toLocaleString()+'</td></tr>';
+});
+document.getElementById('recentRecharges').innerHTML=html||'<tr><td colspan="4" style="text-align:center;color:var(--g)">暂无数据</td></tr>';
+}
+function renderMembersList(){
+var search=document.getElementById('memberSearch').value.toLowerCase();
+var level=document.getElementById('levelFilter').value;
+var status=document.getElementById('statusFilter').value;
+var filtered=membersData.filter(function(m){
+if(search&&!m.name.toLowerCase().includes(search)&&!m.id.toLowerCase().includes(search))return false;
+if(level&&m.level!=level)return false;
+if(status){
+var expired=!m.expireDate||new Date(m.expireDate)<new Date();
+if(status==='expired'&&!expired)return false;
+if(status==='active'&&expired)return false;
+}
+return true;
+});
+var html='';
+var levelNames=['🥉 青铜','🥈 白银','🥇 黄金','💎 钻石'];
+filtered.forEach(function(m){
+var expired=!m.expireDate||new Date(m.expireDate)<new Date();
+var statusBadge=expired?'<span class="badge badge-d">已过期</span>':'<span class="badge badge-s">有效</span>';
+html+='<tr>';
+html+='<td>'+m.id+'</td>';
+html+='<td>'+m.avatar+' '+m.name+'</td>';
+html+='<td><span class="badge badge-w">'+levelNames[m.level-1]+'</span></td>';
+html+='<td>'+m.points+'</td>';
+html+='<td>'+m.expireDate||'--'+'</td>';
+html+='<td>'+statusBadge+'</td>';
+html+='<td><button class="btn-sm" onclick="viewMember(\''+m.id+'\')">详情</button></td>';
+html+='</tr>';
+});
+document.getElementById('membersList').innerHTML=html;
+document.getElementById('emptyMembers').style.display=html?'none':'block';
+}
+function searchMembers(){renderMembersList();}
+function filterMembers(){renderMembersList();}
+function viewMember(memberId){
+var member=membersData.find(function(m){return m.id===memberId;});
+if(!member)return;
+var levelNames=['🥉 青铜','🥈 白银','🥇 黄金','💎 钻石'];
+var html='<div class="member-detail-card">';
+html+='<div class="member-detail-header">';
+html+='<div class="member-detail-avatar">'+member.avatar+'</div>';
+html+='<div class="member-detail-info"><h3>'+member.name+'</h3><p>ID: '+member.id+'</p></div>';
+html+='</div>';
+html+='<div class="member-detail-stats">';
+html+='<div class="member-stat"><div class="value">'+levelNames[member.level-1]+'</div><div class="label">会员等级</div></div>';
+html+='<div class="member-stat"><div class="value">'+member.points+'</div><div class="label">积分余额</div></div>';
+html+='<div class="member-stat"><div class="value">'+member.signinDays+'</div><div class="label">签到天数</div></div>';
+html+='<div class="member-stat"><div class="value">'+member.expireDate||'未开通'+'</div><div class="label">到期时间</div></div>';
+html+='</div>';
+html+='<div style="margin-top:20px"><h4 style="margin-bottom:12px">消费记录</h4>';
+if(member.records&&member.records.length>0){
+html+='<table class="table"><thead><tr><th>时间</th><th>描述</th><th>变化</th></tr></thead><tbody>';
+member.records.slice(0,10).forEach(function(r){
+html+='<tr><td>'+r.time+'</td><td>'+r.desc+'</td><td>'+r.change+'</td></tr>';
+});
+html+='</tbody></table>';
+}else{
+html+='<p style="color:var(--g)">暂无记录</p>';
+}
+html+='</div></div>';
+document.getElementById('memberDetailContent').innerHTML=html;
+document.getElementById('memberModal').classList.add('active');
+}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function renderRechargesList(){
+var search=document.getElementById('rechargeSearch').value.toLowerCase();
+var type=document.getElementById('rechargeTypeFilter').value;
+var filtered=rechargesData.filter(function(r){
+if(search&&!r.memberName.toLowerCase().includes(search))return false;
+if(type&&r.type!==type)return false;
+return true;
+});
+var html='';
+var typeNames={monthly:'月度套餐',yearly:'年度套餐',points:'积分充值'};
+filtered.forEach(function(r){
+html+='<tr>';
+html+='<td>'+r.id+'</td>';
+html+='<td>'+r.memberName+'</td>';
+html+='<td>'+typeNames[r.type]+'</td>';
+html+='<td>'+r.content+'</td>';
+html+='<td>¥'+r.amount+'</td>';
+html+='<td>'+new Date(r.time).toLocaleString()+'</td>';
+html+='<td><span class="badge badge-s">'+r.status+'</span></td>';
+html+='</tr>';
+});
+document.getElementById('rechargesList').innerHTML=html;
+document.getElementById('emptyRecharges').style.display=html?'none':'block';
+}
+function searchRecharges(){renderRechargesList();}
+function filterRecharges(){renderRechargesList();}
+function loadConfigToForm(){
+document.getElementById('signinBase').value=pointsConfig.signinBase;
+document.getElementById('taskHotel').value=pointsConfig.taskHotel;
+document.getElementById('taskFlight').value=pointsConfig.taskFlight;
+document.getElementById('taskItinerary').value=pointsConfig.taskItinerary;
+document.getElementById('taskShare').value=pointsConfig.taskShare;
+document.getElementById('exchangeSilver').value=pointsConfig.exchangeSilver;
+document.getElementById('exchangeGold').value=pointsConfig.exchangeGold;
+document.getElementById('pointsPerYuan').value=pointsConfig.pointsPerYuan;
+levelConfig.forEach(function(l){
+if(l.id>1){
+document.getElementById('level'+l.id+'Points').value=l.points;
+document.getElementById('level'+l.id+'Month').value=l.month;
+document.getElementById('level'+l.id+'Year').value=l.year;
+}
+});
+}
+function savePointsConfig(){
+pointsConfig.signinBase=parseInt(document.getElementById('signinBase').value)||10;
+pointsConfig.taskHotel=parseInt(document.getElementById('taskHotel').value)||5;
+pointsConfig.taskFlight=parseInt(document.getElementById('taskFlight').value)||5;
+pointsConfig.taskItinerary=parseInt(document.getElementById('taskItinerary').value)||20;
+pointsConfig.taskShare=parseInt(document.getElementById('taskShare').value)||30;
+pointsConfig.exchangeSilver=parseInt(document.getElementById('exchangeSilver').value)||500;
+pointsConfig.exchangeGold=parseInt(document.getElementById('exchangeGold').value)||1500;
+pointsConfig.pointsPerYuan=parseInt(document.getElementById('pointsPerYuan').value)||10;
+saveConfig();
+alert('积分配置保存成功！');
+}
+function saveLevelConfig(){
+levelConfig[1].points=parseInt(document.getElementById('level2Points').value)||500;
+levelConfig[1].month=parseInt(document.getElementById('level2Month').value)||29;
+levelConfig[1].year=parseInt(document.getElementById('level2Year').value)||299;
+levelConfig[2].points=parseInt(document.getElementById('level3Points').value)||2000;
+levelConfig[2].month=parseInt(document.getElementById('level3Month').value)||79;
+levelConfig[2].year=parseInt(document.getElementById('level3Year').value)||699;
+levelConfig[3].points=parseInt(document.getElementById('level4Points').value)||5000;
+levelConfig[3].month=parseInt(document.getElementById('level4Month').value)||199;
+levelConfig[3].year=parseInt(document.getElementById('level4Year').value)||1599;
+saveConfig();
+alert('等级配置保存成功！');
+}
+</script>
+</body>
+</html>

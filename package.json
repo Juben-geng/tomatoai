@@ -1,6 +1,7 @@
 {
   "name": "tomatoai-api",
   "version": "2.0.0",
+  "type": "module",
   "description": "番茄旅行OTA API服务 - 支持途牛5大服务",
   "main": "api-server-online.js",
   "scripts": {

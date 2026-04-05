@@ -413,7 +413,9 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--t);h
 
 <script>
 // ==================== 配置 ====================
-const API = 'http://localhost:3000';
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000' 
+    : 'https://tomatoai-api.onrender.com'; // 线上API地址
 const currentMode = { mode: 'smart' };
 let chatHistory = [];
 let currentHotels = [];

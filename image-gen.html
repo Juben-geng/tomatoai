@@ -1,1 +1,737 @@
-﻿@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI生图 - 番茄旅行AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#FF6B35;--primary-dark:#E55A2B;--secondary:#1A3A4A;--accent:#00C9A7;--bg-gradient:linear-gradient(135deg,#FFF9F5 0%,#F0FFF9 50%,#F0F5FF 100%);--text-dark:#1A1A2E;--text-gray:#6B7280;--shadow:0 20px 60px rgba(255,107,53,0.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg-gradient);color:var(--text-dark);min-height:100vh}
+.bg-decoration{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.bg-decoration::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,107,53,0.08) 0%,transparent 70%);border-radius:50%;animation:float 20s ease-in-out infinite}
+.bg-decoration::after{content:'';position:absolute;bottom:-30%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(0,201,167,0.08) 0%,transparent 70%);border-radius:50%;animation:float 25s ease-in-out infinite reverse}
+@keyframes float{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(30px,-30px) rotate(5deg)}}
+nav{position:fixed;top:0;left:0;right:0;padding:18px 60px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,107,53,0.1)}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px}
+.logo-icon{font-size:28px}
+.nav-links{display:flex;gap:8px;list-style:none}
+.nav-links a{padding:8px 18px;border-radius:30px;text-decoration:none;color:var(--text-dark);font-weight:500;font-size:14px;transition:all .3s}
+.nav-links a:hover,.nav-links a.active{background:var(--primary);color:#fff}
+.nav-links a.admin-btn{background:var(--secondary);color:#fff}
+.page-wrapper{padding-top:80px;position:relative;z-index:1}
+.engine-bar{max-width:1200px;margin:30px auto 0;background:#fff;border-radius:20px;padding:20px 30px;box-shadow:var(--shadow);display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.engine-bar .label{font-weight:600;color:var(--secondary);font-size:14px;white-space:nowrap}
+.engine-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.engine-tab{padding:8px 20px;border-radius:30px;border:2px solid #e5e7eb;cursor:pointer;font-size:13px;font-weight:500;transition:all .3s;background:#fff;color:var(--text-gray);display:flex;align-items:center;gap:6px}
+.engine-tab:hover{border-color:var(--primary);color:var(--primary)}
+.engine-tab.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.engine-tab .dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.6}
+.engine-tab.active .dot{background:#fff;opacity:1}
+.fallback-status{margin-left:auto;font-size:12px;color:var(--text-gray);display:flex;align-items:center;gap:6px}
+.fallback-dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.main-layout{max-width:1200px;margin:20px auto;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.left-panel{background:#fff;border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.panel-header{padding:18px 24px;border-bottom:1px solid #f0f0f0;display:flex}
+.tab-btn{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-gray);border-bottom:3px solid transparent;transition:all .3s}
+.tab-btn:hover{color:var(--primary)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.panel-body{padding:20px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--secondary);margin-bottom:8px}
+.form-textarea,.form-input{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid #e5e7eb;font-size:14px;font-family:'Noto Sans SC',sans-serif;transition:border-color .3s;outline:none;background:#fafafa}
+.form-textarea:focus,.form-input:focus{border-color:var(--primary);background:#fff}
+.form-textarea{min-height:90px;resize:vertical}
+.style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.style-pill{padding:8px 4px;text-align:center;border-radius:12px;border:1.5px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:500;transition:all .3s;background:#fafafa}
+.style-pill:hover{border-color:var(--primary);color:var(--primary)}
+.style-pill.active{border-color:var(--primary);background:#FFF0EA;color:var(--primary);font-weight:600}
+.style-pill .style-icon{font-size:20px;display:block;margin-bottom:2px}
+.ratio-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ratio-btn{padding:8px 4px;text-align:center;border-radius:10px;border:1.5px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:600;transition:all .3s;background:#fafafa;color:var(--text-gray)}
+.ratio-btn:hover{border-color:var(--primary);color:var(--primary)}
+.ratio-btn.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.qty-selector{display:flex;align-items:center;gap:12px}
+.qty-btn{width:36px;height:36px;border-radius:50%;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text-dark)}
+.qty-btn:hover{border-color:var(--primary);color:var(--primary)}
+.qty-value{font-size:20px;font-weight:700;color:var(--primary);min-width:30px;text-align:center}
+.upload-zone{border:2px dashed #e5e7eb;border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:#FFF9F5}
+.upload-zone .upload-icon{font-size:36px;margin-bottom:8px}
+.upload-zone .upload-text{font-size:13px;color:var(--text-gray)}
+.upload-zone .upload-text span{color:var(--primary);font-weight:600}
+.upload-preview{width:100%;max-height:160px;object-fit:cover;border-radius:12px;margin-top:10px;display:none}
+.upload-input{display:none}
+.generate-btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Noto Sans SC',sans-serif}
+.generate-btn:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 8px 25px rgba(255,107,53,.4)}
+.generate-btn:active{transform:translateY(0)}
+.generate-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.generate-btn .spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:none}
+.generate-btn.loading .spinner{display:block}
+.generate-btn.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-section{margin-top:12px;display:none}
+.progress-section.active{display:block}
+.progress-bar-wrap{background:#f0f0f0;border-radius:10px;height:8px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:10px;transition:width .5s;width:0}
+.progress-info{display:flex;justify-content:space-between;font-size:12px;color:var(--text-gray);margin-top:6px}
+.engine-log{margin-top:8px;font-size:11px;color:var(--accent);font-weight:500;min-height:16px}
+.right-panel{background:#fff;border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.gallery-header{padding:18px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.gallery-header h3{font-size:16px;font-weight:700;color:var(--secondary)}
+.gallery-actions{display:flex;gap:8px}
+.gallery-action-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:500;transition:all .3s;background:#fff}
+.gallery-action-btn:hover{border-color:var(--primary);color:var(--primary)}
+.gallery-empty{padding:60px 20px;text-align:center;color:var(--text-gray)}
+.gallery-empty .empty-icon{font-size:60px;opacity:.4}
+.gallery-empty p{margin-top:12px;font-size:14px}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px;max-height:520px;overflow-y:auto}
+.gallery-grid::-webkit-scrollbar{width:6px}
+.gallery-grid::-webkit-scrollbar-track{background:#f0f0f0;border-radius:10px}
+.gallery-grid::-webkit-scrollbar-thumb{background:#ccc;border-radius:10px}
+.gallery-item{border-radius:14px;overflow:hidden;background:#f5f5f5;position:relative;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.gallery-item:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.15)}
+.gallery-item img{width:100%;height:auto;display:block;border-radius:14px}
+.gallery-item-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:30px 10px 10px;display:flex;gap:6px;justify-content:center;opacity:0;transition:opacity .3s}
+.gallery-item:hover .gallery-item-overlay{opacity:1}
+.item-action-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.item-action-btn.download{background:var(--primary);color:#fff}
+.item-action-btn.favorite{background:rgba(255,255,255,.2);color:#fff}
+.item-action-btn.favorited{background:#FF4757;color:#fff}
+.item-action-btn.zoom{background:rgba(255,255,255,.2);color:#fff}
+.item-action-btn:hover{transform:scale(1.15)}
+.item-badge{position:absolute;top:8px;left:8px;background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.item-engine-tag{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;backdrop-filter:blur(4px)}
+.history-section{max-width:1200px;margin:20px auto;background:#fff;border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.history-header{padding:18px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.history-header h3{font-size:16px;font-weight:700;color:var(--secondary)}
+.history-list{display:flex;gap:12px;padding:16px;overflow-x:auto}
+.history-list::-webkit-scrollbar{height:6px}
+.history-list::-webkit-scrollbar-track{background:#f0f0f0;border-radius:10px}
+.history-list::-webkit-scrollbar-thumb{background:#ccc;border-radius:10px}
+.history-item{min-width:160px;border-radius:14px;overflow:hidden;border:1.5px solid #e5e7eb;cursor:pointer;transition:all .3s;background:#fafafa}
+.history-item:hover{border-color:var(--primary);transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.history-item img{width:100%;height:120px;object-fit:cover}
+.history-item-info{padding:10px}
+.history-item-info .prompt{font-size:12px;color:var(--text-dark);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-item-info .meta{font-size:11px;color:var(--text-gray);margin-top:3px}
+.lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.92);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.lightbox.active{display:flex}
+.lightbox img{max-width:90%;max-height:85vh;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.lightbox-close{position:absolute;top:20px;right:30px;font-size:32px;color:#fff;cursor:pointer;background:rgba(255,255,255,.1);border:none;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .3s}
+.lightbox-close:hover{background:rgba(255,255,255,.2)}
+.lightbox-actions{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+.lightbox-action{padding:10px 24px;border-radius:30px;border:none;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .3s}
+.lightbox-action.download{background:var(--primary);color:#fff}
+.lightbox-action.favorite{background:rgba(255,255,255,.15);color:#fff}
+.lightbox-action.favorited{background:#FF4757;color:#fff}
+.lightbox-action:hover{transform:scale(1.05)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--secondary);color:#fff;padding:12px 28px;border-radius:30px;font-size:14px;font-weight:500;z-index:2000;opacity:0;transition:all .4s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;bottom:50px}
+.toast.success{background:#10b981}
+.toast.error{background:#ef4444}
+.back-btn{position:fixed;bottom:30px;left:30px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(255,107,53,.4);transition:all .3s;text-decoration:none}
+.back-btn:hover{background:var(--primary-dark);transform:scale(1.1)}
+@media(max-width:900px){.main-layout{grid-template-columns:1fr}nav{padding:16px 20px}.nav-links{display:none}.engine-bar{padding:16px}}
+</style>
+</head>
+<body>
+<div class="bg-decoration"></div>
+
+<nav>
+<div class="logo"><span class="logo-icon">🍅</span><span>番茄旅行AI</span></div>
+<ul class="nav-links">
+<li><a href="index.html">首页</a></li>
+<li><a href="hotel-price.html">酒店比价</a></li>
+<li><a href="ai-assistant.html">AI助手</a></li>
+<li><a href="image-gen.html" class="active">AI生图</a></li>
+<li><a href="admin-panel.html" class="admin-btn">管理后台</a></li>
+</ul>
+</nav>
+
+<div class="page-wrapper">
+<div class="engine-bar">
+<span class="label">🎨 生图引擎</span>
+<div class="engine-tabs">
+<div class="engine-tab active" data-engine="jimeng"><span class="dot"></span> 即梦AI</div>
+<div class="engine-tab" data-engine="meitu"><span class="dot"></span> 美图AI</div>
+<div class="engine-tab" data-engine="roboneo"><span class="dot"></span> RoboNeo</div>
+<div class="engine-tab" data-engine="auto"><span class="dot"></span> 🔄 自动降级</div>
+</div>
+<div class="fallback-status" id="fallbackStatus">
+<span class="fallback-dot"></span>
+<span id="fallbackText">当前：即梦AI</span>
+</div>
+</div>
+
+<div class="main-layout">
+<div class="left-panel">
+<div class="panel-header">
+<div class="tab-btn active" data-tab="text2img">📝 文生图</div>
+<div class="tab-btn" data-tab="img2img">🖼️ 图生图</div>
+</div>
+<div class="panel-body">
+
+<div id="tab-text2img">
+<div class="form-group">
+<label class="form-label">图片描述（Prompt）</label>
+<textarea class="form-textarea" id="promptInput" placeholder="描述你想要的图片内容，例如：夕阳下的桂林山水，水墨画风格，远处有渔舟唱晚..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">🎭 艺术风格</label>
+<div class="style-grid" id="styleGrid">
+<div class="style-pill active" data-style="写实"><span class="style-icon">📷</span>写实</div>
+<div class="style-pill" data-style="动漫"><span class="style-icon">🎨</span>动漫</div>
+<div class="style-pill" data-style="油画"><span class="style-icon">🖼️</span>油画</div>
+<div class="style-pill" data-style="水彩"><span class="style-icon">💧</span>水彩</div>
+<div class="style-pill" data-style="3D"><span class="style-icon">🎲</span>3D</div>
+<div class="style-pill" data-style="极简"><span class="style-icon">⚪</span>极简</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">📐 图片比例</label>
+<div class="ratio-grid" id="ratioGrid">
+<div class="ratio-btn active" data-ratio="1:1">1:1</div>
+<div class="ratio-btn" data-ratio="4:3">4:3</div>
+<div class="ratio-btn" data-ratio="16:9">16:9</div>
+<div class="ratio-btn" data-ratio="9:16">9:16</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">🔢 生成数量</label>
+<div class="qty-selector">
+<button class="qty-btn" id="qtyMinus">−</button>
+<span class="qty-value" id="qtyValue">1</span>
+<button class="qty-btn" id="qtyPlus">+</button>
+<span style="font-size:12px;color:var(--text-gray);margin-left:4px;">张图片</span>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">🖼️ 风格参考图（可选）</label>
+<div class="upload-zone" id="styleRefZone" onclick="document.getElementById('styleRefInput').click()">
+<div class="upload-icon">🎨</div>
+<div class="upload-text">点击上传风格参考图<br><span>支持 JPG/PNG，建议 512×512 以上</span></div>
+<img class="upload-preview" id="styleRefPreview">
+</div>
+<input type="file" class="upload-input" id="styleRefInput" accept="image/*" onchange="handleStyleRefUpload(this)">
+</div>
+<div class="form-group" style="margin-top:20px;">
+<button class="generate-btn" id="generateBtn" onclick="generateImages()">
+<span class="spinner"></span>
+<span class="btn-text">🍅 生成图片</span>
+</button>
+<div class="progress-section" id="progressSection">
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<div class="progress-info">
+<span id="progressText">准备中...</span>
+<span id="engineUsed">引擎：-</span>
+</div>
+<div class="engine-log" id="engineLog"></div>
+</div>
+</div>
+</div>
+
+<div id="tab-img2img" style="display:none;">
+<div class="form-group">
+<label class="form-label">📤 上传原图</label>
+<div class="upload-zone" id="img2imgZone" onclick="document.getElementById('img2imgInput').click()">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text">点击上传图片<br><span>支持 JPG/PNG，最大 10MB</span></div>
+<img class="upload-preview" id="img2imgPreview">
+</div>
+<input type="file" class="upload-input" id="img2imgInput" accept="image/*" onchange="handleImg2ImgUpload(this)">
+</div>
+<div class="form-group">
+<label class="form-label">✏️ 修改描述</label>
+<textarea class="form-textarea" id="img2imgPrompt" placeholder="描述你想要的效果，例如：将图片转换为水墨画风格，添加云雾效果..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">🎭 目标风格</label>
+<div class="style-grid" id="styleGrid2">
+<div class="style-pill active" data-style="写实"><span class="style-icon">📷</span>写实</div>
+<div class="style-pill" data-style="动漫"><span class="style-icon">🎨</span>动漫</div>
+<div class="style-pill" data-style="油画"><span class="style-icon">🖼️</span>油画</div>
+<div class="style-pill" data-style="水彩"><span class="style-icon">💧</span>水彩</div>
+<div class="style-pill" data-style="3D"><span class="style-icon">🎲</span>3D</div>
+<div class="style-pill" data-style="极简"><span class="style-icon">⚪</span>极简</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">🔢 生成数量</label>
+<div class="qty-selector">
+<button class="qty-btn" id="qtyMinus2">−</button>
+<span class="qty-value" id="qtyValue2">1</span>
+<button class="qty-btn" id="qtyPlus2">+</button>
+<span style="font-size:12px;color:var(--text-gray);margin-left:4px;">张图片</span>
+</div>
+</div>
+<div class="form-group" style="margin-top:20px;">
+<button class="generate-btn" id="generateBtn2" onclick="generateImagesImg2Img()">
+<span class="spinner"></span>
+<span class="btn-text">🖼️ 以图生图</span>
+</button>
+<div class="progress-section" id="progressSection2">
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar2"></div></div>
+<div class="progress-info">
+<span id="progressText2">准备中...</span>
+<span id="engineUsed2">引擎：-</span>
+</div>
+<div class="engine-log" id="engineLog2"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="right-panel">
+<div class="gallery-header">
+<h3>🖼️ 生成结果画廊</h3>
+<div class="gallery-actions">
+<button class="gallery-action-btn" onclick="loadDemoImages()">📊 加载示例</button>
+<button class="gallery-action-btn" onclick="clearGallery()">🗑️ 清空</button>
+</div>
+</div>
+<div class="gallery-empty" id="galleryEmpty">
+<div class="empty-icon">🎨</div>
+<p>还没有生成图片<br><span style="font-size:12px;color:#aaa;">输入描述，点击生成按钮开始创作</span></p>
+</div>
+<div class="gallery-grid" id="galleryGrid" style="display:none;"></div>
+</div>
+</div>
+
+<div class="history-section">
+<div class="history-header">
+<h3>📜 生成历史</h3>
+<button class="gallery-action-btn" onclick="clearHistory()">清空历史</button>
+</div>
+<div class="history-list" id="historyList">
+<div style="padding:20px;color:var(--text-gray);font-size:13px;text-align:center;width:100%;">暂无生成历史</div>
+</div>
+</div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+<button class="lightbox-close" onclick="closeLightbox()">✕</button>
+<img id="lightboxImg" src="" alt="">
+<div class="lightbox-actions">
+<button class="lightbox-action download" id="lightboxDownload" onclick="downloadCurrentImage()">⬇ 下载</button>
+<button class="lightbox-action favorite" id="lightboxFavorite" onclick="toggleFavoriteCurrent()">❤ 收藏</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<a href="index.html" class="back-btn" title="返回首页">←</a>
+
+<script>
+var currentEngine=localStorage.getItem('img_engine')||'jimeng';
+var currentStyle=localStorage.getItem('img_style')||'写实';
+var currentRatio=localStorage.getItem('img_ratio')||'1:1';
+var qty=parseInt(localStorage.getItem('img_qty'))||1;
+var styleRefData=null;
+var img2imgData=null;
+var galleryImages=JSON.parse(localStorage.getItem('img_gallery')||'[]');
+var favorites=JSON.parse(localStorage.getItem('img_favorites')||'[]');
+var historyRecords=JSON.parse(localStorage.getItem('img_history')||'[]');
+var currentLightboxIndex=-1;
+
+document.addEventListener('DOMContentLoaded',function(){
+initEngineTabs();initStylePills();initRatioButtons();initQtyButtons();initTabButtons();
+restorePreferences();renderGallery();renderHistory();
+});
+
+function restorePreferences(){
+document.querySelectorAll('.engine-tab').forEach(function(t){t.classList.toggle('active',t.dataset.engine===currentEngine)});
+document.querySelectorAll('#styleGrid .style-pill, #styleGrid2 .style-pill').forEach(function(p){p.classList.toggle('active',p.dataset.style===currentStyle)});
+document.querySelectorAll('#ratioGrid .ratio-btn').forEach(function(b){b.classList.toggle('active',b.dataset.ratio===currentRatio)});
+var qv=document.getElementById('qtyValue');if(qv)qv.textContent=qty;
+var qv2=document.getElementById('qtyValue2');if(qv2)qv2.textContent=qty;
+updateFallbackText();
+}
+
+function initEngineTabs(){
+document.querySelectorAll('.engine-tab').forEach(function(tab){
+tab.addEventListener('click',function(){
+document.querySelectorAll('.engine-tab').forEach(function(t){t.classList.remove('active')});
+tab.classList.add('active');
+currentEngine=tab.dataset.engine;
+localStorage.setItem('img_engine',currentEngine);
+updateFallbackText();
+})});
+}
+
+function initStylePills(){
+document.querySelectorAll('#styleGrid .style-pill, #styleGrid2 .style-pill').forEach(function(pill){
+pill.addEventListener('click',function(){
+var grid=pill.closest('.style-grid');
+grid.querySelectorAll('.style-pill').forEach(function(p){p.classList.remove('active')});
+pill.classList.add('active');
+currentStyle=pill.dataset.style;
+localStorage.setItem('img_style',currentStyle);
+})});
+}
+
+function initRatioButtons(){
+document.querySelectorAll('#ratioGrid .ratio-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+document.querySelectorAll('#ratioGrid .ratio-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+currentRatio=btn.dataset.ratio;
+localStorage.setItem('img_ratio',currentRatio);
+})});
+}
+
+function initQtyButtons(){
+var m1=document.getElementById('qtyMinus'),p1=document.getElementById('qtyPlus');
+var m2=document.getElementById('qtyMinus2'),p2=document.getElementById('qtyPlus2');
+if(m1)m1.addEventListener('click',function(){changeQty(-1)});
+if(p1)p1.addEventListener('click',function(){changeQty(1)});
+if(m2)m2.addEventListener('click',function(){changeQty(-1)});
+if(p2)p2.addEventListener('click',function(){changeQty(1)});
+}
+
+function initTabButtons(){
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+btn.addEventListener('click',function(){
+document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+var tab=btn.dataset.tab;
+document.getElementById('tab-text2img').style.display=(tab==='text2img')?'block':'none';
+document.getElementById('tab-img2img').style.display=(tab==='img2img')?'block':'none';
+})});
+}
+
+function changeQty(delta){
+qty=Math.max(1,Math.min(4,qty+delta));
+document.getElementById('qtyValue').textContent=qty;
+document.getElementById('qtyValue2').textContent=qty;
+localStorage.setItem('img_qty',qty);
+}
+
+function updateFallbackText(){
+var names={jimeng:'即梦AI',meitu:'美图AI',roboneo:'RoboNeo',auto:'自动降级'};
+document.getElementById('fallbackText').textContent='当前：'+(names[currentEngine]||currentEngine);
+}
+
+function handleStyleRefUpload(input){
+var file=input.files[0];
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+styleRefData=e.target.result;
+var preview=document.getElementById('styleRefPreview');
+preview.src=styleRefData;
+preview.style.display='block';
+};
+reader.readAsDataURL(file);
+}
+
+function handleImg2ImgUpload(input){
+var file=input.files[0];
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+img2imgData=e.target.result;
+var preview=document.getElementById('img2imgPreview');
+preview.src=img2imgData;
+preview.style.display='block';
+};
+reader.readAsDataURL(file);
+}
+
+function getDims(ratio){
+var w=(ratio==='16:9')?800:(ratio==='9:16')?400:(ratio==='4:3')?600:500;
+var h=(ratio==='16:9')?450:(ratio==='9:16')?700:(ratio==='4:3')?450:500;
+return{w:w,h:h};
+}
+
+function simulateEngine(prompt,style,ratio,count,baseSeed,failRate,delayMs,engineName){
+return new Promise(function(resolve,reject){
+var t=delayMs+Math.random()*1500;
+setTimeout(function(){
+if(Math.random()<failRate){reject(engineName+': API连接超时或服务暂不可用');return}
+var dims=getDims(ratio);
+var results=[];
+for(var i=0;i<count;i++){results.push('https://picsum.photos/seed/'+(baseSeed+i)+'/'+dims.w+'/'+dims.h)}
+resolve({engine:engineName,images:results});
+},t);
+});
+}
+
+function simulateJimeng(prompt,style,ratio,count,refData){
+return simulateEngine(prompt,style,ratio,count,100+Math.floor(Math.random()*900),0.15,2000,'Jimeng/即梦AI');
+}
+function simulateMeitu(prompt,style,ratio,count,refData){
+return simulateEngine(prompt,style,ratio,count,200+Math.floor(Math.random()*900),0.12,2500,'Meitu/美图AI');
+}
+function simulateRoboNeo(prompt,style,ratio,count,refData){
+return simulateEngine(prompt,style,ratio,count,300+Math.floor(Math.random()*900),0.08,3000,'RoboNeo');
+}
+
+function animateProgress(pct,text,engine,barId,textId,engineId){
+document.getElementById(barId).style.width=pct+'%';
+document.getElementById(textId).textContent=text;
+var el=document.getElementById(engineId);
+if(el)el.textContent='引擎：'+engine;
+}
+
+function generateImages(){
+var prompt=document.getElementById('promptInput').value.trim();
+if(!prompt){showToast('请输入图片描述','error');return}
+var btn=document.getElementById('generateBtn');
+var prog=document.getElementById('progressSection');
+btn.disabled=true;btn.classList.add('loading');prog.classList.add('active');
+var activeStyle=document.querySelector('#styleGrid .style-pill.active');
+var style=activeStyle?activeStyle.dataset.style:currentStyle;
+var engines={jimeng:simulateJimeng,meitu:simulateMeitu,roboneo:simulateRoboNeo};
+var names={jimeng:'即梦AI',meitu:'美图AI',roboneo:'RoboNeo'};
+
+function runEngine(eng,attempt){
+if(currentEngine==='auto'){
+var seq=['jimeng','meitu','roboneo'];
+var idx=attempt||0;
+if(idx>=seq.length){
+animateProgress(0,'全部引擎失败',names[seq[seq.length-1]]||'-','progressBar','progressText','engineUsed');
+document.getElementById('engineLog').textContent='>> 请稍后重试或切换引擎';
+showToast('全部引擎均不可用，请稍后再试','error');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);return;
+}
+var e=seq[idx];
+animateProgress(10,'尝试 '+names[e],names[e],'progressBar','progressText','engineUsed');
+document.getElementById('engineLog').textContent='>> 降级至 '+names[e];
+engines[e](prompt,style,currentRatio,qty,styleRefData).then(function(result){
+addImagesToGallery(result.images,result.engine,prompt,style);
+animateProgress(100,'生成完成',result.engine,'progressBar','progressText','engineUsed');
+showToast('生成成功！由 '+result.engine+' 渲染','success');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);
+}).catch(function(err){
+document.getElementById('engineLog').textContent='>> '+err+'，自动切换引擎...';
+setTimeout(function(){runEngine(null,idx+1)},800);
+});
+}else{
+var engName=names[currentEngine]||currentEngine;
+animateProgress(10,'正在生成...',engName,'progressBar','progressText','engineUsed');
+engines[currentEngine](prompt,style,currentRatio,qty,styleRefData).then(function(result){
+addImagesToGallery(result.images,result.engine,prompt,style);
+animateProgress(100,'生成完成',result.engine,'progressBar','progressText','engineUsed');
+showToast('生成成功！由 '+result.engine+' 渲染','success');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);
+}).catch(function(err){
+animateProgress(0,'生成失败',engName,'progressBar','progressText','engineUsed');
+showToast(err,'error');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);
+});
+}
+}
+runEngine(currentEngine,0);
+}
+
+function generateImagesImg2Img(){
+if(!img2imgData){showToast('请先上传图片','error');return}
+var prompt2=document.getElementById('img2imgPrompt').value.trim()||document.getElementById('promptInput').value.trim()||'基于原图重新生成';
+var btn=document.getElementById('generateBtn2');
+var prog=document.getElementById('progressSection2');
+btn.disabled=true;btn.classList.add('loading');prog.classList.add('active');
+var activeStyle=document.querySelector('#styleGrid2 .style-pill.active');
+var style=activeStyle?activeStyle.dataset.style:currentStyle;
+animateProgress(30,'正在处理...','即梦AI','progressBar2','progressText2','engineUsed2');
+simulateJimeng(prompt2,style,currentRatio,qty,img2imgData).then(function(result){
+addImagesToGallery(result.images,result.engine,prompt2,style);
+animateProgress(100,'生成完成',result.engine,'progressBar2','progressText2','engineUsed2');
+showToast('图生图成功！由 '+result.engine+' 渲染','success');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);
+}).catch(function(err){
+showToast(err,'error');
+btn.disabled=false;btn.classList.remove('loading');
+setTimeout(function(){prog.classList.remove('active')},2000);
+});
+}
+
+function addImagesToGallery(urls,engine,prompt,style){
+var now=new Date().toLocaleString('zh-CN');
+urls.forEach(function(url){
+var img={id:Date.now()+'_'+Math.random(),url:url,engine:engine,prompt:prompt,style:style,time:now};
+galleryImages.unshift(img);
+addToHistory(img);
+});
+if(galleryImages.length>40)galleryImages=galleryImages.slice(0,40);
+localStorage.setItem('img_gallery',JSON.stringify(galleryImages));
+renderGallery();
+}
+
+function renderGallery(){
+var empty=document.getElementById('galleryEmpty');
+var grid=document.getElementById('galleryGrid');
+if(galleryImages.length===0){
+empty.style.display='block';
+grid.style.display='none';
+return;
+}
+empty.style.display='none';
+grid.style.display='grid';
+grid.innerHTML='';
+galleryImages.forEach(function(img,idx){
+var isFav=favorites.indexOf(img.id)!==-1;
+var item=document.createElement('div');
+item.className='gallery-item';
+var html='<img src="'+img.url+'" alt="'+img.prompt.replace(/"/g,'&quot;')+'" loading="lazy">';
+html+='<span class="item-badge">'+img.style+'</span>';
+html+='<span class="item-engine-tag">'+img.engine.split('/')[0]+'</span>';
+html+='<div class="gallery-item-overlay">';
+html+='<button class="item-action-btn zoom" onclick="openLightbox('+idx+')" title="放大">🔍</button>';
+html+='<button class="item-action-btn '+(isFav?'favorited':'favorite')+'" onclick="event.stopPropagation();toggleFavorite(\''+img.id+'\')" title="收藏">❤</button>';
+html+='<button class="item-action-btn download" onclick="event.stopPropagation();downloadImage(\''+img.id+'\')" title="下载">⬇</button>';
+html+='</div>';
+item.innerHTML=html;
+item.onclick=function(){openLightbox(idx);};
+grid.appendChild(item);
+});
+}
+
+function clearGallery(){
+galleryImages=[];
+localStorage.setItem('img_gallery','[]');
+renderGallery();
+showToast('画廊已清空','info');
+}
+
+function toggleFavorite(id){
+var idx=favorites.indexOf(id);
+if(idx===-1){favorites.push(id);showToast('已添加到收藏','success')}
+else{favorites.splice(idx,1);showToast('已取消收藏','info')}
+localStorage.setItem('img_favorites',JSON.stringify(favorites));
+renderGallery();
+}
+
+function toggleFavoriteCurrent(){
+if(currentLightboxIndex>=0&&currentLightboxIndex<galleryImages.length){
+toggleFavorite(galleryImages[currentLightboxIndex].id);
+updateLightboxFavBtn();
+}
+}
+
+function updateLightboxFavBtn(){
+if(currentLightboxIndex<0)return;
+var img=galleryImages[currentLightboxIndex];
+var btn=document.getElementById('lightboxFavorite');
+var isFav=favorites.indexOf(img.id)!==-1;
+btn.className='lightbox-action '+(isFav?'favorited':'favorite');
+btn.innerHTML=(isFav?'❤ 已收藏':'❤ 收藏');
+}
+
+function openLightbox(index){
+currentLightboxIndex=index;
+document.getElementById('lightboxImg').src=galleryImages[index].url;
+document.getElementById('lightbox').classList.add('active');
+updateLightboxFavBtn();
+}
+
+function closeLightbox(){
+document.getElementById('lightbox').classList.remove('active');
+currentLightboxIndex=-1;
+}
+
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape')closeLightbox();
+if(e.key==='ArrowLeft'&&currentLightboxIndex>0)openLightbox(currentLightboxIndex-1);
+if(e.key==='ArrowRight'&&currentLightboxIndex<galleryImages.length-1)openLightbox(currentLightboxIndex+1);
+});
+
+function downloadImage(id){
+var img=galleryImages.find(function(i){return i.id===id});
+if(!img)return;
+var a=document.createElement('a');
+a.href=img.url;
+a.download='tomatoai_'+img.engine.split('/')[0]+'_'+Date.now()+'.png';
+a.target='_blank';
+a.click();
+showToast('开始下载...','success');
+}
+
+function downloadCurrentImage(){
+if(currentLightboxIndex>=0&&currentLightboxIndex<galleryImages.length){
+downloadImage(galleryImages[currentLightboxIndex].id);
+}
+}
+
+function addToHistory(img){
+var exists=historyRecords.some(function(r){return r.prompt===img.prompt&&r.time===img.time});
+if(!exists){
+historyRecords.unshift(img);
+if(historyRecords.length>30)historyRecords=historyRecords.slice(0,30);
+localStorage.setItem('img_history',JSON.stringify(historyRecords));
+renderHistory();
+}
+}
+
+function renderHistory(){
+var list=document.getElementById('historyList');
+if(historyRecords.length===0){
+list.innerHTML='<div style="padding:20px;color:var(--text-gray);font-size:13px;text-align:center;width:100%;">暂无生成历史</div>';
+return;
+}
+list.innerHTML='';
+historyRecords.slice(0,20).forEach(function(item){
+var div=document.createElement('div');
+div.className='history-item';
+div.onclick=function(){
+document.getElementById('promptInput').value=item.prompt;
+var pills=document.querySelectorAll('#styleGrid .style-pill');
+pills.forEach(function(p){p.classList.remove('active')});
+pills.forEach(function(p){if(p.dataset.style===item.style)p.classList.add('active')});
+var galIdx=galleryImages.findIndex(function(g){return g.id===item.id});
+if(galIdx>=0)openLightbox(galIdx);
+};
+div.innerHTML='<img src="'+item.url+'" alt="">'+
+'<div class="history-item-info">'+
+'<div class="prompt">'+item.prompt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
+'<div class="meta">'+item.engine.split('/')[0]+' | '+item.style+'</div>'+
+'</div>';
+list.appendChild(div);
+});
+}
+
+function clearHistory(){
+historyRecords=[];
+localStorage.setItem('img_history','[]');
+renderHistory();
+showToast('历史已清空','info');
+}
+
+function loadDemoImages(){
+var demos=[
+{url:'https://picsum.photos/seed/demo1/500/500',engine:'Jimeng/即梦AI',prompt:'桂林山水，水墨画风格',style:'水彩'},
+{url:'https://picsum.photos/seed/demo2/500/500',engine:'Meitu/美图AI',prompt:'海边日落，写实摄影风格',style:'写实'},
+{url:'https://picsum.photos/seed/demo3/500/500',engine:'RoboNeo',prompt:'未来城市赛博朋克风格',style:'极简'},
+{url:'https://picsum.photos/seed/demo4/500/500',engine:'Jimeng/即梦AI',prompt:'动漫少女插画风格',style:'动漫'},
+{url:'https://picsum.photos/seed/demo5/800/450',engine:'Meitu/美图AI',prompt:'3D卡通动物角色设计',style:'3D'},
+{url:'https://picsum.photos/seed/demo6/400/700',engine:'RoboNeo',prompt:'莫奈风格油画风景',style:'油画'},
+{url:'https://picsum.photos/seed/demo7/500/500',engine:'Jimeng/即梦AI',prompt:'极简几何建筑摄影',style:'极简'},
+{url:'https://picsum.photos/seed/demo8/600/450',engine:'Meitu/美图AI',prompt:'水彩花卉静物写生',style:'水彩'}
+];
+demos.forEach(function(d){
+galleryImages.unshift({id:'demo_'+Date.now()+'_'+Math.random(),url:d.url,engine:d.engine,prompt:d.prompt,style:d.style,time:new Date().toLocaleString('zh-CN')});
+});
+if(galleryImages.length>40)galleryImages=galleryImages.slice(0,40);
+localStorage.setItem('img_gallery',JSON.stringify(galleryImages));
+renderGallery();
+showToast('已加载 8 张示例图片','success');
+}
+
+function showToast(msg,type){
+var toast=document.getElementById('toast');
+toast.textContent=msg;
+toast.className='toast '+(type||'info')+' show';
+setTimeout(function(){toast.classList.remove('show');},2500);
+}
+
+</script>
+
+</body>
+</html>

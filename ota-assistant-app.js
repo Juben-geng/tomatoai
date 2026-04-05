@@ -1,10 +1,32 @@
 /**
  * 番茄旅行 AI 助手 — OTA 统一交互（ota-hotel-flight-query）
+ *
+ * API 双轨策略：
+ *   本机开发 → localhost:3000（秒回）
+ *   线上访问 → tomatoai-api.onrender.com（优先）+ localhost:3000（兜底）
  */
-const API =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://127.0.0.1:3000'
-    : 'https://tomatoai-api.onrender.com';
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const LOCAL_API = 'http://127.0.0.1:3000';
+const ONLINE_API = 'https://tomatoai-api.onrender.com';
+const API = IS_LOCAL ? LOCAL_API : ONLINE_API;
+
+/** 并发双轨 fetch：Render优先，若失败/超时则用本地（限非本地访问） */
+async function dualFetch(url, options = {}) {
+  if (IS_LOCAL) {
+    return fetch(url.replace(ONLINE_API, LOCAL_API), options);
+  }
+  // 线上访问：Render优先，1.5秒超时则切本地
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (_) {
+    clearTimeout(timer);
+    return fetch(url.replace(ONLINE_API, LOCAL_API), options);
+  }
+}
 
 const MEMBER_KEY_STORAGE = 'tomato_member_key_v1';
 
@@ -50,7 +72,7 @@ async function refreshMemberBar() {
   const el = document.getElementById('memberBar');
   if (!el) return;
   try {
-    const res = await fetch(`${API}/api/member/me?key=${encodeURIComponent(getMemberKey())}`);
+    const res = await dualFetch(`/api/member/me?key=${encodeURIComponent(getMemberKey())}`);
     const j = await res.json();
     if (j.status !== 0 || !j.data || j.data.anonymous) {
       el.textContent = '会员：加载中…';
@@ -81,7 +103,7 @@ async function checkAPIService() {
   const dot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
   try {
-    const res = await fetch(`${API}/health`);
+    const res = await dualFetch('/health');
     const j = await res.json();
     badge.className = 'skill-badge ready';
     badge.textContent = '🎯 ota-hotel-flight-query 已加载';
@@ -101,7 +123,7 @@ async function checkAPIService() {
 async function checkFlyaiStatus() {
   const el = document.getElementById('flyaiStatus');
   try {
-    const res = await fetch(`${API}/health`);
+    const res = await dualFetch('/health');
     const data = await res.json();
     el.textContent = data.flyai === 'available' ? '✅ 飞猪CLI' : '⚠️ 仅途牛(飞猪未装)';
   } catch (e) {
@@ -220,7 +242,7 @@ function getPriceColor(price) {
 }
 
 async function postOta(type, body) {
-  const res = await fetch(`${API}/api/ota/query`, {
+  const res = await dualFetch('/api/ota/query', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...memberHeaders() },
     body: JSON.stringify({ type, ...body }),
@@ -250,7 +272,7 @@ function detectCreativeIntent(msg) {
 }
 
 async function postCreativeImage(payload) {
-  const res = await fetch(`${API}/api/creative/image`, {
+  const res = await dualFetch('/api/creative/image', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...memberHeaders() },
     body: JSON.stringify({ memberKey: getMemberKey(), ...payload }),
@@ -265,7 +287,7 @@ async function postCreativeImage(payload) {
 }
 
 async function postVideoReserve() {
-  const res = await fetch(`${API}/api/creative/video-reserve`, {
+  const res = await dualFetch('/api/creative/video-reserve', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...memberHeaders() },
     body: JSON.stringify({ memberKey: getMemberKey() }),
@@ -575,7 +597,7 @@ async function pushLastOtaToFeishu() {
           })),
         };
   try {
-    const res = await fetch(`${API}/api/feishu/push`, {
+    const res = await dualFetch('/api/feishu/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -593,7 +615,7 @@ async function pushLastOtaToFeishu() {
 }
 
 async function callOTA(query) {
-  const res = await fetch(`${API}/api/hotel/search?destName=${encodeURIComponent(query.dest)}&keyWords=${encodeURIComponent(query.hotelName)}&checkIn=${query.checkIn}&checkOut=${query.checkOut}`);
+  const res = await dualFetch(`/api/hotel/search?destName=${encodeURIComponent(query.dest)}&keyWords=${encodeURIComponent(query.hotelName)}&checkIn=${query.checkIn}&checkOut=${query.checkOut}`);
   return res.json();
 }
 
@@ -705,7 +727,7 @@ async function syncToFeishu() {
     return;
   }
   try {
-    const res = await fetch(`${API}/api/feishu/push`, {
+    const res = await dualFetch('/api/feishu/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

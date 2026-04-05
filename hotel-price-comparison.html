@@ -639,9 +639,29 @@
             }
         }
 
-        // 智能API检测：本地优先，未启动时自动提示
+        // 智能API检测：本地优先，未启动时自动提示（支持双轨：线上+本地）
         function getAPI() {
-            return 'http://localhost:3000';
+            const hostname = window.location.hostname;
+            return (hostname === 'localhost' || hostname === '127.0.0.1')
+                ? 'http://localhost:3000'
+                : 'https://tomatoai-api.onrender.com';
+        }
+        // 并发双轨fetch：线上优先，1.5秒超时则切本地
+        async function dualFetch(path, options = {}) {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const localUrl = 'http://localhost:3000' + path;
+            const onlineUrl = 'https://tomatoai-api.onrender.com' + path;
+            if (isLocal) return fetch(localUrl, options);
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 1500);
+            try {
+                const res = await fetch(onlineUrl, { ...options, signal: controller.signal });
+                clearTimeout(timer);
+                return res;
+            } catch (_) {
+                clearTimeout(timer);
+                return fetch(localUrl, options);
+            }
         }
         let allHotels = [];
         let currentFilter = 'all';
@@ -692,7 +712,7 @@
             `;
 
             try {
-                const res = await fetch(`${getAPI()}/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
+                const res = await dualFetch(`/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
                 const data = await res.json();
                 
                 if (data.status === 0 && data.data?.hotels) {

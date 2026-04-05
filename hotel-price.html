@@ -219,10 +219,24 @@ footer{text-align:center;padding:40px;color:#999;font-size:14px}
 </footer>
 
 <script>
-// API地址 - 自动检测环境
-const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:3000'
-    : window.location.origin;
+// API地址 - 双轨策略：线上优先（Render）+ 本地兜底
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const LOCAL_API = 'http://localhost:3000';
+const ONLINE_API = 'https://tomatoai-api.onrender.com';
+
+async function dualFetch(path, options = {}) {
+  if (IS_LOCAL) return fetch(LOCAL_API + path, options);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(ONLINE_API + path, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (_) {
+    clearTimeout(timer);
+    return fetch(LOCAL_API + path, options);
+  }
+}
 
 let allHotels = [];
 let currentFilter = 'all';
@@ -280,7 +294,7 @@ async function searchFlight() {
     container.innerHTML = '<div class="loading"><div class="loading-icon">🍅</div><div class="loading-text">正在查询机票价格...</div></div>';
     
     try {
-        const res = await fetch(`${API}/api/query?type=flight&fromCity=${encodeURIComponent(from || '北京')}&toCity=${encodeURIComponent(to || '三亚')}&date=${date}`);
+        const res = await dualFetch(`/api/query?type=flight&fromCity=${encodeURIComponent(from || '北京')}&toCity=${encodeURIComponent(to || '三亚')}&date=${date}`);
         const data = await res.json();
         
         if (data.status === 0 && data.data?.flights) {
@@ -300,7 +314,7 @@ async function searchTicket() {
     container.innerHTML = '<div class="loading"><div class="loading-icon">🍅</div><div class="loading-text">正在查询门票价格...</div></div>';
     
     try {
-        const res = await fetch(`${API}/api/query?type=ticket&destName=${encodeURIComponent(dest)}&date=${date}`);
+        const res = await dualFetch(`/api/query?type=ticket&destName=${encodeURIComponent(dest)}&date=${date}`);
         const data = await res.json();
         
         if (data.status === 0 && data.data?.tickets) {
@@ -321,7 +335,7 @@ async function searchTrain() {
     container.innerHTML = '<div class="loading"><div class="loading-icon">🍅</div><div class="loading-text">正在查询火车票...</div></div>';
     
     try {
-        const res = await fetch(`${API}/api/query?type=train&fromCity=${encodeURIComponent(from || '北京')}&toCity=${encodeURIComponent(to || '上海')}&date=${date}`);
+        const res = await dualFetch(`/api/query?type=train&fromCity=${encodeURIComponent(from || '北京')}&toCity=${encodeURIComponent(to || '上海')}&date=${date}`);
         const data = await res.json();
         
         if (data.status === 0 && data.data?.trains) {
@@ -435,7 +449,7 @@ async function searchHotels() {
     `;
 
     try {
-        const res = await fetch(`${API}/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
+        const res = await dualFetch(`/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
         const data = await res.json();
         
         if (data.status === 0 && data.data?.hotels) {

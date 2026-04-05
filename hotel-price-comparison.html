@@ -639,7 +639,10 @@
             }
         }
 
-        const API = 'http://localhost:3000';
+        // 智能API检测：本地优先，未启动时自动提示
+        function getAPI() {
+            return 'http://localhost:3000';
+        }
         let allHotels = [];
         let currentFilter = 'all';
 
@@ -689,7 +692,7 @@
             `;
 
             try {
-                const res = await fetch(`${API}/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
+                const res = await fetch(`${getAPI()}/api/hotel/search?destName=${encodeURIComponent(dest)}&checkIn=${checkIn}&checkOut=${checkOut}`);
                 const data = await res.json();
                 
                 if (data.status === 0 && data.data?.hotels) {
@@ -699,7 +702,17 @@
                     container.innerHTML = `<div class="empty"><div class="empty-icon">😔</div><div>未找到相关酒店，请尝试其他关键词</div></div>`;
                 }
             } catch (e) {
-                container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div>查询失败: ${e.message}<br>请确保服务已启动: node hotel-api-server.js</div></div>`;
+                container.innerHTML = `<div class="empty"><div class="empty-icon">🍅</div><div>无法连接本地API服务</div><div style="margin-top:12px;font-size:14px;color:#888">正在尝试启动...</div><div style="margin-top:16px;padding:20px;background:#FFF9F5;border-radius:12px;border:1.5px solid #FF6B35;max-width:420px;margin:16px auto 0">
+<div style="font-weight:600;color:#FF6B35;margin-bottom:10px">🚀 一键启动（推荐）</div>
+<div style="color:#666;font-size:14px;line-height:2">
+双击运行项目中的 <strong>start-api.bat</strong><br>
+即可启动服务，无需手动操作
+</div>
+<div style="margin-top:12px;color:#999;font-size:12px">
+提示：首次使用后，Windows开机将自动启动
+</div>
+<div style="margin-top:14px"><button onclick="location.href='index.html'" style="padding:8px 18px;background:#FF6B35;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer">← 返回首页</button></div>
+</div></div>`;
             }
 
             btn.disabled = false;
@@ -891,43 +904,34 @@
 
         // 页面加载后自动搜索
         window.onload = () => {
-            // 先检查API服务状态
             checkAPI().then(isRunning => {
                 if (isRunning) {
                     searchHotels();
                 } else {
-                    // API未启动 - 尝试启动服务
-                    tryAutoStart().then(again => {
-                        if (again) {
-                            searchHotels();
-                        } else {
-                            // 无法启动，显示错误提示
-                            document.getElementById('resultsContainer').innerHTML = `
-                                <div style="text-align:center;padding:60px 20px">
-                                    <div style="font-size:60px;margin-bottom:20px">⚠️</div>
-                                    <div style="color:#666;font-size:16px;margin-bottom:20px">
-                                        API服务启动失败
-                                    </div>
-                                    <div style="background:#FFEBEE;border-left:4px solid #E53935;padding:16px 20px;border-radius:8px;text-align:left;max-width:500px;margin:0 auto">
-                                        <div style="font-weight:600;color:#C62828;margin-bottom:10px">请手动启动服务：</div>
-                                        <div style="color:#666;font-size:14px;line-height:2">
-                                            1. 双击运行 <code style="background:#f5f5f5;padding:2px 6px;border-radius:4px">start-tomato-travel.bat</code><br>
-                                            2. 或部署到线上环境（Vercel+Supabase）
-                                        </div>
-                                    </div>
+                    // API未启动，友好引导
+                    document.getElementById('resultsContainer').innerHTML = `
+                        <div style="text-align:center;padding:60px 20px">
+                            <div style="font-size:60px;margin-bottom:20px">🍅</div>
+                            <div style="color:#666;font-size:16px;margin-bottom:20px">
+                                首次使用需要一键启动API服务
+                            </div>
+                            <div style="background:#FFF9F5;border-left:4px solid #FF6B35;padding:20px 24px;border-radius:12px;text-align:left;max-width:460px;margin:0 auto">
+                                <div style="font-weight:600;color:#FF6B35;margin-bottom:12px;font-size:15px">🚀 一键启动（30秒搞定）</div>
+                                <div style="color:#444;font-size:14px;line-height:2">
+                                    1. 打开文件夹：<code style="background:#f0f0f0;padding:2px 6px;border-radius:4px">tomatoai</code><br>
+                                    2. 双击运行 <strong>start-api.bat</strong><br>
+                                    3. 看到「启动成功」后刷新本页面
                                 </div>
-                            `;
-                        }
-                    });
+                                <div style="margin-top:14px;padding-top:14px;border-top:1px solid #eee;color:#888;font-size:13px">
+                                    💡 首次运行后，Windows开机将自动启动，无需再次手动操作
+                                </div>
+                                <div style="margin-top:16px"><button onclick="location.href='index.html'" style="padding:8px 20px;background:#FF6B35;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">← 先返回首页</button></div>
+                            </div>
+                        </div>
+                    `;
                 }
             });
         };
-
-        // 尝试自动启动服务
-        async function tryAutoStart() {
-            // 这里可以添加自动启动逻辑
-            return false;
-        }
     </script>
 </body>
 </html>

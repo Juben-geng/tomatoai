@@ -4,7 +4,7 @@
 const API =
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://127.0.0.1:3000'
-    : window.location.origin;
+    : 'https://tomatoai-api.onrender.com';
 
 const MEMBER_KEY_STORAGE = 'tomato_member_key_v1';
 
@@ -92,9 +92,9 @@ async function checkAPIService() {
         : '🍅 OTA在线 · 请配置 TUNIU_API_KEY 获取实时途牛数据';
   } catch (e) {
     badge.className = 'skill-badge error';
-    badge.textContent = '⚠️ 请启动 node hotel-api-server.js';
+    badge.textContent = '⚠️ API未启动';
     dot.className = 'status-dot err';
-    statusText.textContent = '⚠️ OTA API 未连接 (' + API + ')';
+    statusText.innerHTML = '⚠️ OTA服务未启动 · <a href="start-api.bat" style="color:#FF6B35;font-weight:600">双击 start-api.bat 启动</a>';
   }
 }
 
